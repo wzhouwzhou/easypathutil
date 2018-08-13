@@ -12,9 +12,9 @@ exports.default = function get(object, prop) {
   }
   if (prop === 'toString') return () => this.proxy();
   const stringprop = prop.toString();
-  if (/^$require(?:[._]*default)?$/.test(stringprop)) {
+  if (/^\$require(?:[._]*default)?$/.test(stringprop)) {
     const required = require(`${this.base}/${this.parts.join('/')}`.replace(/\/$/, ''));
-    if (prop.toString() === '$require') {
+    if (prop.toLowerCase().toString() === '$require') {
       return required && required.__esModule ? required.default : required;
     } else {
       return required && required.default;
@@ -33,7 +33,7 @@ exports.default = function get(object, prop) {
         return res(data);
       }));
     }
-  } else if (/^\$(?:to[._]*?)?json$/i.test(stringprop)) {
+  } else if (/^\$(?:to[._]*)?json$/i.test(stringprop)) {
     const file = this.proxy.$readfilesync.toString();
     console.log(file)
     return JSON.parse(file);
