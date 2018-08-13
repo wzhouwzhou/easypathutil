@@ -1,0 +1,19 @@
+'use strict';
+Reflect.defineProperty(exports, '__esModule', { value: true });
+
+exports.default = function has(target, prop) {
+  const stringprop = prop.toString();
+  if (/^$require(?:[._]*default)?$/.test(stringprop)) {
+    try {
+      require.resolve(`${this.base}/${this.parts.join('/')}`.replace(/\/$/, ''));
+      return true;
+    } catch (err) {
+      if (err && err.code === 'MODULE_NOT_FOUND') return false;
+      throw err;
+    }
+  } else if (stringprop === '$back') {
+    return this.parts.length > 0;
+  } else {
+    return fs.existsSync(`${this.base}/${[...this.parts, stringprop].join('/')}`.replace(/\/$/, ''));
+  }
+};

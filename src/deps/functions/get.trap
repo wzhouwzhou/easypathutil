@@ -1,0 +1,46 @@
+'use strict';
+Reflect.defineProperty(exports, '__esModule', { value: true });
+
+const fs = require('fs');
+const get_stat = require('./get_stat');
+const { inspect } = require('util');
+
+exports.default = function get(object, prop) {
+  if (prop === Symbol.species) return this.constructor;
+  if (prop === Symbol.toPrimitive || prop === Symbol.toStringTag || prop === 'inspect' || (inspect && prop === inspect.custom)) {
+    return () => `Path [${this.proxy()}]`;
+  }
+  if (prop === 'toString') return () => this.proxy();
+  const stringprop = prop.toString();
+  if (/^$require(?:[._]*default)?$/.test(stringprop)) {
+    const required = require(`${this.base}/${this.parts.join('/')}`.replace(/\/$/, ''));
+    if (prop.toString() === '$require') {
+      return required && required.__esModule ? required.default : required;
+    } else {
+      return required && required.default;
+    }
+  } else if (stringprop === '$back') {
+    return new this.constructor(this.base, this.parts.slice(0, -1));
+  } else if (stringprop === '$reset') {
+    return new this.constructor(this.base);
+  } else if (/^\$read(?:[._]*)?file(?:[._]*sync)?$/i.test(stringprop)) {
+    if (!this.proxy.$stat.file) throw new Error('Read: I am not a file.');
+    if (stringprop.includes('sync')) {
+      return fs.readFileSync(this.proxy());
+    } else {
+      return new Promise((res, rej) => fs.readFile(this.proxy(), (err, data) => {
+        if (err) return rej(err);
+        return res(data);
+      }));
+    }
+  } else if (/^\$(?:to[._]*?)?json$/i.test(stringprop)) {
+    const file = this.proxy.$readfilesync.toString();
+    console.log(file)
+    return JSON.parse(file);
+  } else if (/^\$stat(?:[._]*(?:legacy|number))?$/i.test(stringprop)) {
+    const path = `${this.base}/${this.parts.join('/')}`.replace(/\/$/, '');
+    return get_stat.default(path, stringprop);
+  } else {
+    return new this.constructor(this.base, [...this.parts, prop.toString()])
+  }
+}

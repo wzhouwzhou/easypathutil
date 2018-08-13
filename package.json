@@ -1,0 +1,30 @@
+{
+  "name": "easypathutil",
+  "version": "1.0.0",
+  "description": "Fluent filepaths, made simple.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wzhouwzhou/easypathutil.git"
+  },
+  "keywords": [
+    "easypath",
+    "fluent",
+    "filepath",
+    "promise",
+    "fs",
+    "path",
+    "builder",
+    "pathbuilder",
+    "es6"
+  ],
+  "author": "William Zhou",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/wzhouwzhou/easypathutil/issues"
+  },
+  "homepage": "https://github.com/wzhouwzhou/easypathutil#readme"
+}
