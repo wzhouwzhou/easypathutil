@@ -26,10 +26,11 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 • Export the PathBuilder as an npm module to eliminate the need for the above point when attempting to use a PathBuilder.
 
-• Easily check for existence of a file or folder, read, get stats, or require.
-
 ### Goals/Why use Easypathutil
-This package hopes to make your paths easier to follow for deeply nested files.
+• This package hopes to make your paths easier to follow for deeply nested files.
+• Easily check for existence of a file or folder, read, get stats, or require.
+• Lightweight: Package size is around 6kB
+
 The tutorial below aims to demonstrate the core functionality of this package.
 
 ### Show me in action
@@ -38,9 +39,9 @@ Three files: /data/users.json, /classes/A.js and /a/b/c/d/e/nested.js
 nested.js:
 **Before:**
 
-    const file = require('fs').readFileSync(require('path').join(\_\_dirname, '../../../../data/users.json'));
+    const file = require('fs').readFileSync(require('path').join(__dirname, '../../../../data/users.json'));
     const json = JSON.parse(file);
-    const default_object = new (require(require('path').join(\_\_dirname, '../../../../classes/A')).default);
+    const default_object = new (require(require('path').join(__dirname, '../../../../classes/A')).default);
 
 **After:**
 
@@ -95,7 +96,7 @@ The `new` keyword is optional, a builder can be retrieved simply with Builder() 
     myjsfilebufferpromise.then(filedata => filedata === myjsfilebuffer)
     myjsfilebufferpromise.then(filedata => filedata.toString() === myjsfilebuffer.toString())
 
-    // optional "." or "\_" and case insensitive
+    // optional "." or "_" and case insensitive
     myjsfile.$read_file, myjsfile.$read_file_sync
     myjsfile.$readfile, myjsfile.$readfile_sync
     myjsfile['$readFile'], myjsfile['$readFileSync']
@@ -112,7 +113,7 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
 **Load JSON without require (.$json)**
 
     const jsonfile = myfolder('jsonfile.json'); // Points to /root/home/projects/myfolder/jsonfile.json
-    const parsedjson = jsonfile.$json // Aliases: .$json, .$toJson, .$JSON, .$to_json, etc, optional "." or "\_" and case insensitive
+    const parsedjson = jsonfile.$json // Aliases: .$json, .$toJson, .$JSON, .$to_json, etc, optional "." or "_" and case insensitive
 
 **New object shortcut (.$new, .$new_default)**
 
@@ -154,3 +155,6 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
     myjsfilestat.dir === myjsfilestatlegacy.isDirectory
 
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
+
+Enjoy this package? Consider starring on [github](https://github.com/wzhouwzhou/easypathutil) and checking out some of my other work:
+[Youtube Search API](https://npmjs.com/ytsearcher)
