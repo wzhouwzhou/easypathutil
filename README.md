@@ -28,7 +28,9 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ### Goals/Why use Easypathutil
 • This package hopes to make your paths easier to follow for deeply nested files.
+
 • Easily check for existence of a file or folder, read, get stats, or require.
+
 • Lightweight: Package size is around 6kB
 
 The tutorial below aims to demonstrate the core functionality of this package.
