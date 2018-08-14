@@ -4,6 +4,7 @@
         <a class="badge-align" href="https://www.codacy.com/app/wzhouwzhou/easypathutil?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=wzhouwzhou/easypathutil&amp;utm_campaign=Badge_Grade"><img src="https://api.codacy.com/project/badge/Grade/d54c94b0c32e45bc8046d2825eb474cb"/></a>
         <a href="https://www.npmjs.com/package/easypathutil"><img src="https://img.shields.io/npm/v/easypathutil.svg" alt="NPM version" /></a>
         <a href="https://www.npmjs.com/package/easypathutil"><img src="https://img.shields.io/npm/dt/easypathutil.svg" alt="NPM downloads" /></a>
+        <a href="https://david-dm.org/wzhouwzhou/easypathutil"><img src="https://img.shields.io/david/wzhouwzhou/easypathutil.svg" alt="Dependencies" /></a>
         <a href="https://paypal.me/wzhouwzhou"><img src="https://img.shields.io/badge/donate-paypal-009cde.svg" alt="Paypal" /></a>
     </p>
     <p>
@@ -32,17 +33,20 @@ This package hopes to make your paths easier to follow for deeply nested files.
 The tutorial below aims to demonstrate the core functionality of this package.
 
 ### Show me in action
-Two files: /data/users.json and /a/b/c/d/e/nested.js
+Three files: /data/users.json, /classes/A.js and /a/b/c/d/e/nested.js
+
 nested.js:
 **Before:**
 
-    const file = require('fs').readFileSync(require('path').join(__dirname, '../../../../data/users.json'));
+    const file = require('fs').readFileSync(require('path').join(\_\_dirname, '../../../../data/users.json'));
     const json = JSON.parse(file);
+    const default_object = new (require(require('path').join(\_\_dirname, '../../../../classes/A')).default);
 
 **After:**
 
     const cwd = require('easypathutil')();
     const json = cwd.data['users.json'].$json;
+    const default_object = cwd.classes.A.$new_default;
 
 **Quickstart Usage and Examples**
 
@@ -50,7 +54,7 @@ nested.js:
     const cwd = new Builder;
     cwd() === process.cwd() // true
 
-The `new` keyword is optional, a builder can be retrieved simply with Builder()
+The `new` keyword is optional, a builder can be retrieved simply with Builder() as well.
 
 **Fluent Interface Examples (chaining, constructor, .toString, [] vs ())**
 
@@ -110,6 +114,20 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
     const jsonfile = myfolder('jsonfile.json'); // Points to /root/home/projects/myfolder/jsonfile.json
     const parsedjson = jsonfile.$json // Aliases: .$json, .$toJson, .$JSON, .$to_json, etc, optional "." or "\_" and case insensitive
 
+**New object shortcut (.$new, .$new_default)**
+
+Before:
+
+    const object = new require('../../path/to/myjsfile');
+    const defaultobject = new (require('../../path/to/myjsfile').default);
+
+After (with myjsfile as myfolder.foo.bar.myjsfile):
+
+    const object2 = myjsfile.$new; // .$new creates a new instance of the result of .$require
+    const defaultobject2 = myjsfile.$new_default; // .$new_default and aliases create new instances of .$require_default
+
+Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitive
+
 **About .$stat**
 
     // Get file stats synchronously instead of wrapping with fs.statSync with extra function calls
@@ -129,15 +147,10 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
 
 **Thus, $stat.size as well as any other property that relies on legacy or bigint/number conversion should always be the same:**
 
-    Number(myjsfilestat.size) === myjsfilestatlegacy.size // All these statements should be true
+    // All these statements should be true
+    Number(myjsfilestat.size) === myjsfilestatlegacy.size
     Number(myjsfilestat.blocks) === myjsfilestatlegacy.blocks
     myjsfilestat.isFile === myjsfilestatlegacy.file
     myjsfilestat.dir === myjsfilestatlegacy.isDirectory
 
-**Bypass .$ properties with ()**
-Useful if you have a folder named any of the above $property hooks.
-
-    const folder_stats = myfolder.$stat;
-    const the_$stat_subfolder = myfolder('$stat');
-
-    the_$stat_subfolder.toString() // 'root/home/projects/myfolder/$stat/'
+This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.

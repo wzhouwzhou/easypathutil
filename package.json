@@ -19,7 +19,8 @@
     "path",
     "builder",
     "pathbuilder",
-    "es6"
+    "es6",
+    "modern"
   ],
   "author": "William Zhou",
   "license": "UNLICENSED",

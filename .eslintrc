@@ -1,7 +1,7 @@
 {
   "extends": "eslint:recommended",
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2018
   },
   "env": {
     "es6": true,
@@ -41,7 +41,7 @@
 
     "accessor-pairs": "warn",
     "array-callback-return": "error",
-    "complexity": "warn",
+    "complexity": ["warn", 25],
     "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
     "dot-location": ["error", "property"],
