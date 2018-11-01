@@ -3,6 +3,7 @@ Reflect.defineProperty(exports, '__esModule', { value: true });
 
 const fs = require('fs');
 const get_stat = require('./get_stat');
+const read_dir = require('./read_dir');
 const { inspect } = require('util');
 
 exports.default = function get(object, prop) {
@@ -13,7 +14,7 @@ exports.default = function get(object, prop) {
   if (prop === 'toString') return () => this.proxy();
   const stringprop = prop.toString();
   if (/^\$require(?:[._]*default)?$/i.test(stringprop)) {
-    const required = require(`${this.base}/${this.parts.join('/')}`.replace(/\/$/, ''));
+    const required = require(this._path.join(this.base, ...this.parts));
     if (prop.toString().toLowerCase() === '$require') {
       return required && required.__esModule ? required.default : required;
     } else {
@@ -39,12 +40,18 @@ exports.default = function get(object, prop) {
         return res(data);
       }));
     }
+  } else if (/^\$read(?:[._]*)?dir(?:[._]*sync)?$/i.test(stringprop)) {
+    if (stringprop.includes('sync')) {
+      return read_dir.sync(this.proxy(), this._path);
+    } else {
+      return read_dir.parallel(this.proxy(), this._path);
+    }
   } else if (/^\$(?:to[._]*)?json$/i.test(stringprop)) {
     const file = this.proxy.$readfilesync.toString();
     return JSON.parse(file);
   } else if (/^\$stat(?:[._]*(?:legacy|number))?$/i.test(stringprop)) {
-    const path = `${this.base}/${this.parts.join('/')}`.replace(/\/$/, '');
-    return get_stat.default(path, stringprop);
+    const p = this._path.join(this.base, ...this.parts);
+    return get_stat.default(p, stringprop);
   } else {
     return new this.constructor(this.base, [...this.parts, prop.toString()]);
   }
