@@ -15,6 +15,13 @@ function PathBuilder(base = process.cwd(), {
   this._path = path;
   this._fs = fs;
 
+  // Perform basic checks on potentially user-defined functions
+  const empty = ['JSON', 'path', 'fs'].find(e => typeof this[`_${e}`] !== 'object' || this[`_${e}`] === null);
+  if (empty) throw new Error(`Dependency ${empty} must be a non-null object!`);
+  if (typeof Reflect.get(this._JSON, 'parse') !== 'function') throw new Error('Invalid JSON object, "parse" function property missing!');
+  if (typeof Reflect.get(this._fs, 'statSync') !== 'function') throw new Error('Invalid fs object, "statSync" function property missing!');
+  if (typeof Reflect.get(this._path, 'join') !== 'function') throw new Error('Invalid path object, "join" function property missing!');
+
   const proxy = this.proxy = new Proxy((arga => {
     if (!arga) return this._path.join(this.base, ...this.parts);
     return new PathBuilder(this.base, { JSON, path, fs }, [...this.parts, arga.toString()]);

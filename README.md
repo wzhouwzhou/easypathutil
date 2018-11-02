@@ -19,7 +19,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.1.0
+    npm install easypathutil@1.1.1
 
 ## New in 1.1.0
 • Provide your own JSON, path, or fs objects
@@ -129,7 +129,7 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
     const jsonfile = myfolder('jsonfile.json'); // Points to /root/home/projects/myfolder/jsonfile.json
     const parsedjson = jsonfile.$json // Aliases: .$json, .$toJson, .$JSON, .$to_json, etc, optional "." or "_" and case insensitive
 
-**Read directory recursively, returning an array of absolute paths to files (.$read_dir, .$read_dir_sync)
+**Read directory recursively, returning an array of absolute paths to files (.$read_dir, .$read_dir_sync)**
 
     const filearray = myfolder.$read_dir_sync
     myfolder.$read_dir.then(filearray2 => {
@@ -176,7 +176,16 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
     myjsfilestat.isFile === myjsfilestatlegacy.file
     myjsfilestat.dir === myjsfilestatlegacy.isDirectory
 
+**Existence of a file or folder (in operator, Reflect.has, etc)**
+
+    const boolean_exists = 'foldername' in myfolder;
+    const boolean_exists2 = Reflect.has(myfolder, 'filename.extension');
+    const boolean_exists3 = 'subfoldername' in Object.create(myfolder);
+
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
 
 Enjoy this package? Consider starring on [github](https://github.com/wzhouwzhou/easypathutil) and checking out some of my other work:
+
 [Youtube Search API](https://npmjs.com/ytsearcher)
+
+[Urban Dictionary](https://npmjs.com/easyurban)
