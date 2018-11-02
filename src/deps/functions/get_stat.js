@@ -1,9 +1,7 @@
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
-const fs = require('fs');
-
-exports.default = (path, stringprop) => {
+exports.default = (path, stringprop, fs) => {
   try {
     const bigInt = !stringprop.toLowerCase().includes('legacy') && !stringprop.toLowerCase().includes('number');
     const stat = fs.statSync(path, { bigInt }),

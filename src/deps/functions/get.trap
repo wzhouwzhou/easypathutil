@@ -48,10 +48,10 @@ exports.default = function get(object, prop) {
     }
   } else if (/^\$(?:to[._]*)?json$/i.test(stringprop)) {
     const file = this.proxy.$readfilesync.toString();
-    return JSON.parse(file);
+    return this._JSON.parse(file);
   } else if (/^\$stat(?:[._]*(?:legacy|number))?$/i.test(stringprop)) {
     const p = this._path.join(this.base, ...this.parts);
-    return get_stat.default(p, stringprop);
+    return get_stat.default(p, stringprop, this._fs);
   } else {
     return new this.constructor(this.base, [...this.parts, prop.toString()]);
   }

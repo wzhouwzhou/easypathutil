@@ -19,7 +19,12 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil
+    npm install easypathutil@1.1.0
+
+## New in 1.1.0
+• Provide your own JSON, path, or fs objects
+
+• More reliable path support (slash vs backslash)
 
 ### Two-Part Motivation
 • Avoid a nesting problem of excessive '../../../../../foo/bar' when you can use a fluent object in projects with a more invariant file structure.
@@ -29,9 +34,9 @@ The modern (es6) way to specify file paths and perform quick file system operati
 ### Goals/Why use Easypathutil
 • This package hopes to make your paths easier to follow for deeply nested files.
 
-• Easily check for existence of a file or folder, read, get stats, or require.
+• Easily check for existence of or load a file or folder, read, get stats, or require.
 
-• Lightweight: Package size is around 6kB
+• Lightweight: Package size under 7kB
 
 The tutorial below aims to demonstrate the core functionality of this package.
 
@@ -64,8 +69,15 @@ The `new` keyword is optional, a builder can be retrieved simply with Builder() 
     // Using process.cwd() (root/home/projects/myfolder) as base
     const myfolder = Builder();
 
-    // Provide the full path:
+    // Or provide the full path:
     const myfolder = new Builder('/root/home/projects/myfolder');
+
+    // Or (for more advanced users) provide custom JSON, path and fs object:
+    const myfolder = new Builder('/root/home/projects/myfolder', {
+      JSON: someJsonPackage || global.JSON,
+      fs: someFsPackage || require('fs'),
+      path: somePathPackage || require('path'),
+    });
 
     const myfolderstring = myfolder(); // '/root/home/projects/myfolder'
     const samefolderstring = myfolder.toString(); // toString property turns it back into the path string
@@ -116,6 +128,14 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
 
     const jsonfile = myfolder('jsonfile.json'); // Points to /root/home/projects/myfolder/jsonfile.json
     const parsedjson = jsonfile.$json // Aliases: .$json, .$toJson, .$JSON, .$to_json, etc, optional "." or "_" and case insensitive
+
+**Read directory recursively, returning an array of absolute paths to files (.$read_dir, .$read_dir_sync)
+
+    const filearray = myfolder.$read_dir_sync
+    myfolder.$read_dir.then(filearray2 => {
+      // same array contents as filearray
+    });
+    // Aliases .$readdir, .$readDirsync, etc. as always, "." or "_" are optional and case insensitive
 
 **New object shortcut (.$new, .$new_default)**
 
