@@ -1,7 +1,6 @@
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
-const fs = require('fs');
 const get_stat = require('./get_stat');
 const read_dir = require('./read_dir');
 const { inspect } = require('util');
@@ -27,15 +26,15 @@ exports.default = function get(object, prop) {
       return new this.proxy.$require_default;
     }
   } else if (stringprop === '$back') {
-    return new this.constructor(this.base, this.parts.slice(0, -1));
+    return new this.constructor(this.base, { JSON: this._JSON, path: this._path, fs: this._fs }, this.parts.slice(0, -1));
   } else if (stringprop === '$reset') {
-    return new this.constructor(this.base);
+    return new this.constructor(this.base, { JSON: this._JSON, path: this._path, fs: this._fs });
   } else if (/^\$read(?:[._]*)?file(?:[._]*sync)?$/i.test(stringprop)) {
     if (!this.proxy.$stat.file) throw new Error('Read: I am not a file.');
     if (stringprop.includes('sync')) {
-      return fs.readFileSync(this.proxy());
+      return this._fs.readFileSync(this.proxy());
     } else {
-      return new Promise((res, rej) => fs.readFile(this.proxy(), (err, data) => {
+      return new Promise((res, rej) => this._fs.readFile(this.proxy(), (err, data) => {
         if (err) return rej(err);
         return res(data);
       }));
@@ -53,6 +52,6 @@ exports.default = function get(object, prop) {
     const p = this._path.join(this.base, ...this.parts);
     return get_stat.default(p, stringprop, this._fs);
   } else {
-    return new this.constructor(this.base, [...this.parts, prop.toString()]);
+    return new this.constructor(this.base, { JSON: this._JSON, path: this._path, fs: this._fs }, [...this.parts, prop.toString()]);
   }
 };
