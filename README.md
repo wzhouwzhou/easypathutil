@@ -41,7 +41,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 • Easily check for existence of or load a file or folder, read, get stats, or require.
 
-• Lightweight: Package size under 7kB
+• Updated and Lightweight: Package size ~7kB
 
 The tutorial below aims to demonstrate the core functionality of this package.
 
