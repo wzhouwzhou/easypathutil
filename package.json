@@ -1,10 +1,11 @@
 {
   "name": "easypathutil",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Fluent filepaths, made simple.",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node index.js",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",

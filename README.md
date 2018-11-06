@@ -19,9 +19,14 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.1.1
+    npm install easypathutil@1.2.0
 
-## New in 1.1.0
+### New in 1.2.0
+• Completely refactored internals that power the fluent API
+
+• Provide your own Promise library
+
+### New in 1.1.0
 • Provide your own JSON, path, or fs objects
 
 • More reliable path support (slash vs backslash)
@@ -36,7 +41,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 • Easily check for existence of or load a file or folder, read, get stats, or require.
 
-• Lightweight: Package size under 7kB
+• Updated and Lightweight: Package size ~7kB
 
 The tutorial below aims to demonstrate the core functionality of this package.
 
@@ -77,6 +82,7 @@ The `new` keyword is optional, a builder can be retrieved simply with Builder() 
       JSON: someJsonPackage || global.JSON,
       fs: someFsPackage || require('fs'),
       path: somePathPackage || require('path'),
+      Promise: somePromisePackage || global.Promise,
     });
 
     const myfolderstring = myfolder(); // '/root/home/projects/myfolder'
@@ -105,9 +111,9 @@ The `new` keyword is optional, a builder can be retrieved simply with Builder() 
     const myjsfilebufferpromise = myjsfile.$readfile // $readfile returns a promise for async retrieval
 
     // The following will hence be true or resolve to true:
-    myjsfilebuffer === await myjsfilebufferpromise
+    myjsfilebuffer !== await myjsfilebufferpromise
     myjsfilebuffer.toString() === (await myjsfilebufferpromise).toString()
-    myjsfilebufferpromise.then(filedata => filedata === myjsfilebuffer)
+    myjsfilebufferpromise.then(filedata => filedata !== myjsfilebuffer)
     myjsfilebufferpromise.then(filedata => filedata.toString() === myjsfilebuffer.toString())
 
     // optional "." or "_" and case insensitive
@@ -181,6 +187,11 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
     const boolean_exists = 'foldername' in myfolder;
     const boolean_exists2 = Reflect.has(myfolder, 'filename.extension');
     const boolean_exists3 = 'subfoldername' in Object.create(myfolder);
+
+**Version**
+
+    const version = require('easypathutil').version;
+    version === require('easypathutil').VERSION;
 
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
 
