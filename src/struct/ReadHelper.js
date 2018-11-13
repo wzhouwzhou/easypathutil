@@ -104,7 +104,7 @@ const ReadHelper = class ReadHelper {
   }
 
   load_proxy() {
-    const list = this.read_recurse_series('./src/deps/traps');
+    const list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'));
     this.traps = [];
     for (const { condition, value } of list.map(require)) {
       this.traps.push({
