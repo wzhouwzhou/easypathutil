@@ -19,7 +19,10 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.2.0
+    npm install easypathutil@1.2.1
+
+### New in 1.2.1
+• Fixed a bug relating to a new loader implemented in 1.2.0 causing crashes
 
 ### New in 1.2.0
 • Completely refactored internals that power the fluent API
