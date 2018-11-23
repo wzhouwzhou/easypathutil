@@ -3,10 +3,11 @@
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
 const ReadHelper = class ReadHelper {
-  constructor(builder, { fs, path } = {}) {
+  constructor(builder, { fs, path, Promise } = {}) {
     this.builder = builder;
     this.fs = fs;
     this.path = path;
+    this._Promise = Promise;
     this.load_proxy();
   }
 
