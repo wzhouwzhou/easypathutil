@@ -12,13 +12,9 @@ const ReadHelper = class ReadHelper {
   }
 
   _normalize(sync, filter) {
-    if (sync === true && !filter) return path => this.get_stat(path).directory;
-    if (sync === false && !filter) {
-      return path => new this._Promise((res, rej) => this.fs.stat(path, (err, stat) => {
-        if (err) return rej(err);
-        return res(stat);
-      }));
-    }
+    if (sync === true && !filter) return path => this.get_stat_sync(path).directory;
+    if (sync === false && !filter) return path => this.get_stat(path).then(stat => stat.directory);
+
     let ref = filter || sync;
     if (ref && Object.prototype.toString.call(ref) === '[object String]') return path => path !== ref;
     if (ref && RegExp[Symbol.hasInstance](ref)) return path => !ref.test(path);
@@ -78,7 +74,7 @@ const ReadHelper = class ReadHelper {
   }
   parallel(...args) { return this.read_recurse_parallel(...args); }
 
-  get_stat(path, stringprop = '') {
+  get_stat_sync(path, stringprop = '') {
     try {
       const bigInt = !stringprop.toLowerCase().includes('legacy') && !stringprop.toLowerCase().includes('number');
       const stat = this.fs.statSync(path, { bigInt }),
@@ -96,11 +92,51 @@ const ReadHelper = class ReadHelper {
             directory: isDir,
           });
         }
+        // Throw to bottom catch to re-throw
         throw err;
       }
     } catch (err) {
       if (err && err.code === 'ENOENT') return false;
       throw err;
+    }
+  }
+
+  get_stat(path, stringprop = '') {
+    try {
+      const bigInt = !stringprop.toLowerCase().includes('legacy') && !stringprop.toLowerCase().includes('number');
+      return new Promise((res, rej) => this.fs.stat(path, { bigInt }, (err, stat) => {
+        if (err) {
+          if (err.code === 'ENOENT') return res(false);
+          return rej(err);
+        }
+
+        const isDir = stat.isDirectory(),
+          isFile = stat.isFile(),
+          isBigInt = typeof stat.size === 'bigint'; // eslint-disable-line valid-typeof
+        try {
+          return res({ ...stat,
+            isBigInt,
+            isFile, file: isFile,
+            isDir, folder: isDir,
+            directory: isDir,
+            isFolder: isDir,
+            isDirectory: isDir,
+          });
+        } catch (_err) {
+          if (_err && _err instanceof SyntaxError) {
+            return res(Object.assign(stat, {
+              isBigInt,
+              file: isFile,
+              folder: isDir,
+              directory: isDir,
+            }));
+          }
+          return rej(_err);
+        }
+      }));
+    } catch (err) {
+      if (err && err.code === 'ENOENT') return this._Promise.resolve(false);
+      return this._Promise.reject(err);
     }
   }
 
