@@ -19,7 +19,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.2.2
+    npm install easypathutil@1.2.3
 
 ### Two-Part Motivation
 • Avoid a nesting problem of excessive '../../../../../foo/bar' when you can use a fluent object in projects with a more invariant file structure.
@@ -31,7 +31,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 • Easily check for existence of or load a file or folder, read, get stats, or require.
 
-• Updated and Lightweight: Package size ~7kB
+• Updated and Lightweight: Package size <7.5kB
 
 The tutorial below aims to demonstrate the core functionality of this package.
 
@@ -186,6 +186,10 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
 
 ## Changelog
+### New in 1.2.3
+• Fixed several bugs differentiating between sync and async versions of .$ properties. (i.e. file.$stat and file.$stat.sync)
+• Fixed async reading of folders
+
 ### New in 1.2.2
 • Fixed a bug relating to Promise not being loaded into the ReadHelper, causing async operations to fail
 
