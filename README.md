@@ -19,20 +19,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.2.1
-
-### New in 1.2.1
-• Fixed a bug relating to a new loader implemented in 1.2.0 causing crashes
-
-### New in 1.2.0
-• Completely refactored internals that power the fluent API
-
-• Provide your own Promise library
-
-### New in 1.1.0
-• Provide your own JSON, path, or fs objects
-
-• More reliable path support (slash vs backslash)
+    npm install easypathutil@1.2.2
 
 ### Two-Part Motivation
 • Avoid a nesting problem of excessive '../../../../../foo/bar' when you can use a fluent object in projects with a more invariant file structure.
@@ -197,6 +184,24 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
     version === require('easypathutil').VERSION;
 
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
+
+## Changelog
+### New in 1.2.2
+• Fixed a bug relating to Promise not being loaded into the ReadHelper, causing async operations to fail
+
+### New in 1.2.1
+• Fixed a bug relating to a new loader implemented in 1.2.0 causing crashes
+
+### New in 1.2.0
+• Completely refactored internals that power the fluent API
+
+• Provide your own Promise library
+
+### New in 1.1.0
+• Provide your own JSON, path, or fs objects
+
+• More reliable path support (slash vs backslash)
+
 
 Enjoy this package? Consider starring on [github](https://github.com/wzhouwzhou/easypathutil) and checking out some of my other work:
 
