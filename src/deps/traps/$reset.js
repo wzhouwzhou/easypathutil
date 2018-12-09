@@ -7,5 +7,6 @@ exports.value = function value() {
     path: this._path,
     fs: this._fs,
     Promise: this._Promise,
+    readdir_filter: this.readdir_filter,
   });
 };

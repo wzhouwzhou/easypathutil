@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="35989182-de5a-4555-8fa8-4100cbe39e43" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/deps/functions/get.trap" beforeDir="false" afterPath="$PROJECT_DIR$/src/deps/functions/get.trap" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/deps/traps/$back.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/deps/traps/$back.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/deps/traps/$reset.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/deps/traps/$reset.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/struct/PathBuilder.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/struct/PathBuilder.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/struct/ReadHelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/struct/ReadHelper.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,15 +20,18 @@
     <session id="-1242043915">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.0" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.open.time.62" value="1" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="js" value="4" />
           <entry key="json" value="6" />
-          <entry key="md" value="3" />
+          <entry key="md" value="4" />
           <entry key="npmignore" value="2" />
           <entry key="trap" value="1" />
         </counts>
@@ -33,7 +40,7 @@
         <counts>
           <entry key="JSON" value="6" />
           <entry key="JavaScript" value="4" />
-          <entry key="Markdown" value="3" />
+          <entry key="Markdown" value="4" />
           <entry key="PLAIN_TEXT" value="3" />
         </counts>
       </usages-collector>
@@ -41,7 +48,7 @@
         <counts>
           <entry key="js" value="666" />
           <entry key="json" value="4" />
-          <entry key="md" value="354" />
+          <entry key="md" value="5587" />
           <entry key="npmignore" value="6" />
           <entry key="trap" value="61" />
         </counts>
@@ -50,7 +57,7 @@
         <counts>
           <entry key="JSON" value="4" />
           <entry key="JavaScript" value="666" />
-          <entry key="Markdown" value="354" />
+          <entry key="Markdown" value="5587" />
           <entry key="PLAIN_TEXT" value="67" />
         </counts>
       </usages-collector>
@@ -67,8 +74,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="432">
-                <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
+              <first_editor relative-caret-position="342">
+                <caret line="232" column="58" selection-start-line="232" selection-start-column="58" selection-end-line="232" selection-end-column="58" />
               </first_editor>
               <second_editor />
             </state>
@@ -135,8 +142,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -148,6 +153,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -205,17 +212,19 @@
       <option name="presentableId" value="Default" />
       <updated>1542953815436</updated>
       <workItem from="1542953816903" duration="22208000" />
+      <workItem from="1543797390971" duration="597000" />
+      <workItem from="1544316128781" duration="5576000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="26718000" />
+    <option name="totallyTimeSpent" value="32891000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1177" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13312034" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13525027" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -224,13 +233,13 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32956687" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32956687" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.4661017" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.4661017" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -262,9 +271,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="299">
           <caret line="144" column="20" lean-forward="true" selection-start-line="144" selection-start-column="20" selection-end-line="144" selection-end-column="20" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -313,8 +319,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="432">
-            <caret line="33" column="44" selection-start-line="33" selection-start-column="44" selection-end-line="33" selection-end-column="44" />
+          <first_editor relative-caret-position="342">
+            <caret line="232" column="58" selection-start-line="232" selection-start-column="58" selection-end-line="232" selection-end-column="58" />
           </first_editor>
           <second_editor />
         </state>

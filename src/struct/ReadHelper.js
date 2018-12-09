@@ -3,17 +3,22 @@
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
 const ReadHelper = class ReadHelper {
-  constructor(builder, { fs, path, Promise } = {}) {
+  constructor(builder, { fs, path, Promise, readdir_filter, filter } = {}) {
     this.builder = builder;
     this.fs = fs;
     this.path = path;
     this._Promise = Promise;
+    this._readdir_filter = readdir_filter || filter;
+    this.sync_filter = (this._readdir_filter ? this._readdir_filter.sync || this._readdir_filter :
+      _path => this.get_stat_sync(_path).directory).bind(this);
+    this.async_filter = (this._readdir_filter ? this._readdir_filter.async || this._readdir_filter.parallel || this._readdir_filter :
+      _path => this.get_stat(_path).then(stat => stat.directory)).bind(this);
     this.load_proxy();
   }
 
   _normalize(sync, filter) {
-    if (sync === true && !filter) return path => this.get_stat_sync(path).directory;
-    if (sync === false && !filter) return path => this.get_stat(path).then(stat => stat.directory);
+    if (sync === true && !filter) return this.sync_filter;
+    if (sync === false && !filter) return this.async_filter;
 
     let ref = filter || sync;
     if (ref && Object.prototype.toString.call(ref) === '[object String]') return path => path !== ref;
@@ -104,44 +109,51 @@ const ReadHelper = class ReadHelper {
   get_stat(path, stringprop = '') {
     try {
       const bigInt = !stringprop.toLowerCase().includes('legacy') && !stringprop.toLowerCase().includes('number');
-      return new Promise((res, rej) => this.fs.stat(path, { bigInt }, (err, stat) => {
-        if (err) {
-          if (err.code === 'ENOENT') return res(false);
-          return rej(err);
-        }
-
-        const isDir = stat.isDirectory(),
-          isFile = stat.isFile(),
-          isBigInt = typeof stat.size === 'bigint'; // eslint-disable-line valid-typeof
-        try {
-          return res({ ...stat,
-            isBigInt,
-            isFile, file: isFile,
-            isDir, folder: isDir,
-            directory: isDir,
-            isFolder: isDir,
-            isDirectory: isDir,
-          });
-        } catch (_err) {
-          if (_err && _err instanceof SyntaxError) {
-            return res(Object.assign(stat, {
-              isBigInt,
-              file: isFile,
-              folder: isDir,
-              directory: isDir,
-            }));
-          }
-          return rej(_err);
-        }
-      }));
+      try {
+        return new Promise((res, rej) => this.fs.stat(path, { bigInt }, (err, stat) => this.get_stat_cb(err, stat, { res, rej })));
+      } catch (_node_version_error) {
+        return new Promise((res, rej) => this.fs.stat(path, (err, stat) => this.get_stat_cb(err, stat, { res, rej })));
+      }
     } catch (err) {
       if (err && err.code === 'ENOENT') return this._Promise.resolve(false);
       return this._Promise.reject(err);
     }
   }
 
+  get_stat_cb(err, stat, { res, rej }) {
+    if (err) {
+      if (err.code === 'ENOENT') return res(false);
+      return rej(err);
+    }
+
+    const isDir = stat.isDirectory(),
+      isFile = stat.isFile(),
+      isBigInt = typeof stat.size === 'bigint'; // eslint-disable-line valid-typeof
+    try {
+      return res({ ...stat,
+        isBigInt,
+        isFile, file: isFile,
+        isDir, folder: isDir,
+        directory: isDir,
+        isFolder: isDir,
+        isDirectory: isDir,
+      });
+    } catch (_err) {
+      if (_err && _err instanceof SyntaxError) {
+        return res(Object.assign(stat, {
+          isBigInt,
+          file: isFile,
+          folder: isDir,
+          directory: isDir,
+        }));
+      }
+      return rej(_err);
+    }
+  }
+
   load_proxy() {
-    const list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'));
+    const list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
+      e => this.get_stat_sync(e).directory);
     this.traps = [];
     for (const { condition, value } of list.map(require)) {
       this.traps.push({
