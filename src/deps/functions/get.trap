@@ -12,5 +12,6 @@ exports.default = function get(object, prop) {
     path: this._path,
     fs: this._fs,
     Promise: this._Promise,
+    readdir_filter: this._readdir_filter,
   }, [...this.parts, prop.toString()]);
 };
