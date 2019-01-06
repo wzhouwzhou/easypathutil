@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "livescript": "lsc"
   },
   "repository": {
     "type": "git",
@@ -28,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/wzhouwzhou/easypathutil/issues"
   },
-  "homepage": "https://github.com/wzhouwzhou/easypathutil#readme"
+  "homepage": "https://github.com/wzhouwzhou/easypathutil#readme",
+  "devDependencies": {
+    "livescript": "^1.6.0"
+  }
 }

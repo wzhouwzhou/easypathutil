@@ -137,7 +137,7 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
 **Advanced Feature: Recursive Dive Prevention**
 
 Please note that this feature is for more advanced users only who specifically have this need. You may skip down to the next section if you
-are reading directories only for files. 
+are reading directories only for files.
 
 Recall back to how to construct the object with options:
 
@@ -176,7 +176,7 @@ This will return everything, files and folders, whos name ends with .ext
 
 Don't want the files? You can chain Array#filter in nodejs
 
-        const folders_only = array.filter(path => require('fs').statSync(path).isDirectory()); 
+        const folders_only = array.filter(path => require('fs').statSync(path).isDirectory());
 
 Or just filter once for better performance:
 
@@ -185,18 +185,19 @@ Or just filter once for better performance:
 
 You may specify also filter parameter as two seperate functions for synchronous and async versions of .$readdir and .$readdirsync
 
-        const sync = function filter_sync(path) {
+        const sync_filter = function filter_sync(path) {
            return !path.endsWith('.ext') && this.get_stat_sync(path).directory;
         };
-        
-        const async = async function filter_async(path) {
+
+        const async_filter = async function filter_async(path) {
           if (path.endsWith('.ext')) return false; // Think about this line as: if the file or folder we are looking at ends with .ext, stop recursing.
           const { directory } = await this.get_stat(path);
-          return directory; // If directory is true, the path refers to a directory, so keep recursing, in case such files or folders that match the above case reside in subfolders of the one we are currently looking at. 
+          return directory; // If directory is true, the path refers to a directory, so keep recursing, in case such files or folders that match the above case reside in subfolders of the one we are currently looking at.
         };
-        
+
         const folder = Builder(absolutepath, {
-          filter: { sync, async },
+          // ...
+          filter: { sync: sync_filtere, async: async_filter },
         });
 
         // Use the synchronous version:
@@ -223,12 +224,12 @@ What about your second example with the translations?
         const array = Builder(process.cwd(), { filter }).subfolder.data.$readdirsync; // Reminder: we can use the same Builder to get to the folder first!
 
 The const array will now contain an array with everything one-level deep into /subfolder/data/translations. In our example, these would be
-the two .../en and .../es folders 
+the two .../en and .../es folders
 
 Notice my usage of the keyword `function` when creating these filter functions. I have not used arrow functions (=> lambdas) because of my
 use of "this" (this.get_stat_sync). The filter function is bound to the library's ReadHelper objects, which contain several internal helper
 functions to help abstract the directory reading process away from the node fs module. You are free to use arrow functions when this binding
-functionality is not of use to you. 
+functionality is not of use to you.
 
 Have a more specific use case that you don't believe this covers? Open an issue on this package's github repository (linked below)!
 
@@ -285,11 +286,15 @@ Aliases: $newDefault, $newdefault, etc, optional "." or "\_" and case insensitiv
 This package adapts as needs arise, and although it has been tested on some versions of node v8 and v10, problems may still occur.
 
 ## Changelog
+### New in 1.2.5
+• Fixed an issue with the Readme example and added more examples to the github repository.
+
 ### New in 1.2.4
 • Introduced an advanced feature for synchronous and async recursive directory read filtering ("filter" parameter in constructor).
 
 Should you notice anything wrong with this, please do open a reproducible issue or pull request on this package's github repository
 (linked below)!
+
 ### New in 1.2.3
 • Fixed several bugs differentiating between sync and async versions of .$ properties. (i.e. file.$stat and file.$stat.sync)
 

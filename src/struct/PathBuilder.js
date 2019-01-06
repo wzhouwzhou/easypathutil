@@ -4,6 +4,13 @@ Reflect.defineProperty(exports, '__esModule', { value: true });
 const { traps: { has, get } } = require('../deps');
 const ReadHelper = require('./ReadHelper').default;
 
+const resolve = (rel, path, n, p = Error.prepareStackTrace) => {
+  Error.prepareStackTrace = (_, $) => $;
+  const { stack: [,, s, s2] } = Error();
+  Error.prepareStackTrace = p;
+  return path.resolve(path.dirname(n ? s2.getFileName() : s.getFileName()) || process.cwd(), rel);
+};
+
 function PathBuilder(base = process.cwd(), {
   JSON = global.JSON,
   path = require('path'),
@@ -11,9 +18,10 @@ function PathBuilder(base = process.cwd(), {
   Promise = global.Promise,
   readdir_filter = null,
   filter = null,
+  n = null,
 } = {}, parts = []) {
-  if (!(this instanceof PathBuilder)) return new PathBuilder(base, { JSON, path, fs, Promise, readdir_filter, filter }, parts);
-  this.base = base;
+  if (!(this instanceof PathBuilder)) return new PathBuilder(base, { JSON, path, fs, Promise, readdir_filter, filter, n: 1 }, parts);
+  this.base = path.isAbsolute(base) ? base : resolve(base, path, n);
   this.parts = parts;
   this._JSON = JSON;
   this._path = path;
