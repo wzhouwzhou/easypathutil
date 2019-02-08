@@ -74,6 +74,7 @@ The `new` keyword is optional, a builder can be retrieved simply with Builder() 
       path: somePathPackage || require('path'),
       Promise: somePromisePackage || global.Promise,
       filter: filepath => should_dive_folder(filepath), // This function checks recursive directory dives with a given filter. More below.
+      rel: process.cwd(), // To manually set the directory for relative paths, such as '../data.json'
     });
 
     const myfolderstring = myfolder(); // '/root/home/projects/myfolder'

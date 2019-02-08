@@ -19,9 +19,10 @@ function PathBuilder(base = process.cwd(), {
   readdir_filter = null,
   filter = null,
   n = null,
+  rel = false,
 } = {}, parts = []) {
-  if (!(this instanceof PathBuilder)) return new PathBuilder(base, { JSON, path, fs, Promise, readdir_filter, filter, n: 1 }, parts);
-  this.base = path.isAbsolute(base) ? base : resolve(base, path, n);
+  if (!(this instanceof PathBuilder)) return new PathBuilder(base, { JSON, path, fs, Promise, readdir_filter, filter, n: 1, rel }, parts);
+  this.base = path.isAbsolute(base) ? base : rel ? path.resolve(rel, base) : resolve(base, path, n);
   this.parts = parts;
   this._JSON = JSON;
   this._path = path;
