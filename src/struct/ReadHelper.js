@@ -90,12 +90,7 @@ const ReadHelper = class ReadHelper {
         return { ...stat, isBigInt, isFile, file: isFile, isDir, folder: isDir, directory: isDir, isFolder: isDir, isDirectory: isDir };
       } catch (err) {
         if (err && err instanceof SyntaxError) {
-          return Object.assign(stat, {
-            isBigInt,
-            file: isFile,
-            folder: isDir,
-            directory: isDir,
-          });
+          return Object.assign(stat, { isBigInt, file: isFile, folder: isDir, directory: isDir });
         }
         // Throw to bottom catch to re-throw
         throw err;
@@ -110,7 +105,13 @@ const ReadHelper = class ReadHelper {
     try {
       const bigInt = !stringprop.toLowerCase().includes('legacy') && !stringprop.toLowerCase().includes('number');
       try {
-        return new Promise((res, rej) => this.fs.stat(path, { bigInt }, (err, stat) => this.get_stat_cb(err, stat, { res, rej })));
+        return new Promise((res, rej) => {
+          try {
+            this.fs.stat(path, { bigInt }, (err, stat) => this.get_stat_cb(err, stat, { res, rej }));
+          } catch(_node_error) {
+            this.fs.stat(path, (err, stat) => this.get_stat_cb(err, stat, { res, rej }));
+          }
+        });
       } catch (_node_version_error) {
         return new Promise((res, rej) => this.fs.stat(path, (err, stat) => this.get_stat_cb(err, stat, { res, rej })));
       }
@@ -149,6 +150,43 @@ const ReadHelper = class ReadHelper {
       }
       return rej(_err);
     }
+  }
+
+  _mkdir(_path, options) {
+    return new this._Promise((res, rej) => this.fs.mkdir(_path, options, err => {
+        if (err) return rej(err);
+        return res();
+      }));
+  }
+
+  mkdir_sync(_path, options) {
+    const path = this.path.resolve(_path);
+    if (options.gte_v10_12) return this.fs.mkdirSync(path, { recursive: true, ...options });
+    for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) {
+      $stat = this.get_stat_sync(pending, options.stringprop);
+      if ($stat) {
+        if ($stat.isDirectory) {
+          if ((pending === path) || !to_create[--i]) return path;
+          this.fs.mkdirSync(to_create[i], options);
+        } else throw new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`);
+      } else to_create[++i] = this.path.dirname(pending);
+    }
+    return path;
+  }
+
+  async mkdir_cb(_path, options, cb) {
+    const path = this.path.resolve(_path);
+    if (options.gte_v10_12) return this.fs.mkdir(path, { recursive: true, ...options }, cb);
+    for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) {
+      $stat = await this.get_stat(pending, options.stringprop);
+      if ($stat) {
+        if ($stat.isDirectory) {
+          if ((pending === path) || !to_create[--i]) return cb(null, path);
+          await this._mkdir(to_create[i], options);
+        } else return cb(new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`));
+      } else to_create[++i] = this.path.dirname(pending);
+    }
+    return cb(null, path);
   }
 
   load_proxy() {
