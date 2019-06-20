@@ -1,35 +1,34 @@
+/* eslint-disable no-inline-comments */ //#Todo #HelpWanted : Generate proper documentation for parameters #//
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
 const { traps: { has, get } } = require('../deps');
 const ReadHelper = require('./ReadHelper').default;
 
-const resolve = (rel, path, n, p = Error.prepareStackTrace) => {
+const _resolve = (rel, path, n, p = Error.prepareStackTrace) => {
   Error.prepareStackTrace = (_, $) => $;
-  const { stack: [,, s, s2] } = Error();
+  const { stack: [,,, s, s2] } = Error();
   Error.prepareStackTrace = p;
   return path.resolve(path.dirname(n ? s2.getFileName() : s.getFileName()) || process.cwd(), rel);
 };
 
 function PathBuilder(base = process.cwd(), {
-  JSON = global.JSON,
-  path = require('path'),
-  fs = require('fs'),
-  Promise = global.Promise,
+  JSON = global.JSON, // JSON libraries to use.
+  path = require('path'), // Path library to use. Not recommended to change from the default.
+  fs = require('fs'), // Fs library to use
+  Promise = global.Promise, // Promise library to use
   readdir_filter = null,
-  filter = null,
-  n = null,
-  rel = false,
+  filter = null, // Filters for $read_dir related traps
+  n = null, // Automatically set to 1 if creating a new instance of PathBuilder to bypass extra stack call
+  rel = false, // Specify an override for the relative path instead of automatically determining and/or using base.
 } = {}, parts = []) {
+  const opts = { JSON, path, fs, Promise, readdir_filter, filter, n, rel };
   if (!(this instanceof PathBuilder)) return new PathBuilder(base, { JSON, path, fs, Promise, readdir_filter, filter, n: 1, rel }, parts);
-  this.base = path.isAbsolute(base) ? base : rel ? path.resolve(rel, base) : resolve(base, path, n);
+  this.base = PathBuilder.construct_base(path.normalize(base), opts);
   this.parts = parts;
-  this._JSON = JSON;
-  this._path = path;
-  this._fs = fs;
-  this._Promise = Promise;
+  this._JSON = JSON; this._path = path; this._fs = fs; this._Promise = Promise; // Assign libraries to underscored private property
   this._readdir_filter = readdir_filter || filter;
-  this.read_dir = new ReadHelper(this, { fs, path, Promise, readdir_filter, filter });
+  this.read_dir = new ReadHelper(this, opts);
 
   // Perform basic checks on potentially user-defined functions
   const empty = ['JSON', 'path', 'fs'].find(e => typeof this[`_${e}`] !== 'object' || this[`_${e}`] === null);
@@ -54,6 +53,14 @@ function PathBuilder(base = process.cwd(), {
   }).bind(this), { has: has.bind(this), get: get.bind(this) });
   return proxy;
 }
+
+PathBuilder.construct_base = (base, opts) => {
+  const { rel, path, n } = opts;
+  if (path.isAbsolute(base)) return base;
+  if (rel) return path.resolve(rel, base);
+  if (!base.startsWith('.')) return _resolve(base, path, n);
+  return path.resolve(process.cwd(), `.${path.sep}${base}`);
+};
 
 PathBuilder.PathBuilder = PathBuilder.default = PathBuilder;
 exports.default = PathBuilder;
