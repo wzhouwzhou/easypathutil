@@ -3,7 +3,7 @@ const name = exports.name = '$_props';
 
 exports.condition = ({ stringprop }) => stringprop === name;
 exports.value = function value() {
-  const properties = ['base', 'parts', 'JSON', 'path', 'fs', 'Promise', 'readdir_filter'];
+  const properties = this._properties;
   const _export = {};
   for (const prop of properties) {
     Object.defineProperty(_export, prop, { enumerable: 1,

@@ -7,11 +7,6 @@ exports.default = function get(object, prop) {
     if (trap.condition({ prop, stringprop })) return trap.value(object, prop, stringprop);
   }
 
-  return new this.constructor(this.base, {
-    JSON: this._JSON,
-    path: this._path,
-    fs: this._fs,
-    Promise: this._Promise,
-    readdir_filter: this._readdir_filter,
-  }, [...this.parts, prop.toString()]);
+  return new this.constructor(this.base,
+    this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), [...this.parts, prop.toString()]);
 };

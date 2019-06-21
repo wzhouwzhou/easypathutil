@@ -1,6 +1,7 @@
 const regex = exports.regex = /^\$read(?:[._]*)?file(?:[._]*sync)?$/i;
 
 exports.condition = ({ stringprop }) => regex.test(stringprop);
+exports.dependencies = ['$stat'];
 exports.value = function value(object, prop, stringprop) {
   if (stringprop.toLowerCase().includes('sync')) {
     if (!this.proxy.$statsync.file) throw new Error(`Read: I am not a file. (Tried to access ${this.proxy()} unsuccessfully.)`);

@@ -3,7 +3,7 @@
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
 const ReadHelper = class ReadHelper {
-  constructor(builder, { fs, path, Promise, readdir_filter, filter } = {}) {
+  constructor(builder, { fs, path, Promise, readdir_filter, filter, /* Array | Set | null */ load_only_traps, exclude_traps } = {}) {
     this.builder = builder;
     this.fs = fs;
     this.path = path;
@@ -13,10 +13,12 @@ const ReadHelper = class ReadHelper {
       _path => this.get_stat_sync(_path).directory).bind(this);
     this.async_filter = (this._readdir_filter ? this._readdir_filter.async || this._readdir_filter.parallel || this._readdir_filter :
       _path => this.get_stat(_path).then(stat => stat.directory)).bind(this);
+    this.load_only_traps = load_only_traps && new Set(load_only_traps);
+    this.exclude_traps = exclude_traps && new Set(exclude_traps);
     this.load_proxy();
   }
 
-  _normalize(sync, filter) {
+  _normalize_filter(sync, filter) {
     if (sync === true && !filter) return this.sync_filter;
     if (sync === false && !filter) return this.async_filter;
 
@@ -26,7 +28,7 @@ const ReadHelper = class ReadHelper {
     if (ref && Object.toString.call(ref) === '[object Function]') return ref;
   }
 
-  read_recurse_series(seek, filter = this._normalize(true)) {
+  read_recurse_series(seek, filter = this._normalize_filter(true)) {
     const list = [];
     const read = dir => {
       const files = this.fs.readdirSync(dir);
@@ -41,7 +43,7 @@ const ReadHelper = class ReadHelper {
   }
   sync(...args) { return this.read_recurse_series(...args); }
 
-  read_recurse_parallel(dir, filter = this._normalize(false), suppress = false) {
+  read_recurse_parallel(dir, filter = this._normalize_filter(false), suppress = false) {
     return new this._Promise((res, rej) => {
       let results = [];
       return this.fs.readdir(dir, (__err, list) => {
@@ -190,14 +192,35 @@ const ReadHelper = class ReadHelper {
   }
 
   load_proxy() {
-    const list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
+    let list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
       e => this.get_stat_sync(e).directory);
-    this.traps = [];
-    for (const { condition, value } of list.map(require)) {
-      this.traps.push({
-        condition,
-        value: value.bind(this.builder),
-      });
+    if (this.load_only_traps || this.exclude_traps) {
+      const every = !this.load_only_traps
+      this.load_only_traps = this.load_only_traps || new Set;
+      this.exclude_traps = this.exclude_traps || new Set;
+      const trap_lib = {}, /* Array */ all_dependencies = Array.from(this.load_only_traps || []); // Array to take advantage of spreaded .push()
+      for (let i = 0, e, trap, condition, value, dependencies;
+        i < list.length && (e = list[i]) && (trap = path.basename(e, '.js')) && ({ condition, value, dependencies } = require(e)); ++i) {
+          if (this.exclude_traps.has(trap)) continue;
+          trap_lib[trap] = { condition, value, dependencies };
+          if (every) all_dependencies.push(trap);
+          if (this.load_only_traps.has(trap) && dependencies) all_dependencies.push(...dependencies);
+      }
+      this.traps = all_dependencies.reduce((traps, next) => {
+        const trap = trap_lib[next];
+        if (!trap) return traps;
+        trap.value = trap.value.bind(this.builder);
+        traps.push(trap);
+        return traps;
+      }, []);
+    } else {
+      this.traps = [];
+      for (const { condition, value } of list.map(require)) {
+        this.traps.push({
+          condition,
+          value: value.bind(this.builder),
+        });
+      }
     }
     this.builder.traps = this.traps;
     return this.builder;

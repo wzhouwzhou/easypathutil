@@ -29,7 +29,7 @@ exports.value = function value(object, prop, stringprop) {
           return this.read_dir.mkdir_cb(this.proxy(), options, (err, path) => {
             if (err) return rej(err);
             return res(path);
-          })
+          });
         });
       }).bind(this);
     }

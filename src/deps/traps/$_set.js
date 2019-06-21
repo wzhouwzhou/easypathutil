@@ -2,6 +2,7 @@
 const name = exports.name = '$_set';
 
 exports.condition = ({ stringprop }) => stringprop === name;
+exports.depdencies = ['$_props'];
 exports.value = function value() {
   return function _set(prop, val) {
     this.proxy.$_props[prop] = val;
