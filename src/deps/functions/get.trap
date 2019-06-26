@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign, no-sequences */
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
@@ -6,7 +7,13 @@ exports.default = function get(object, prop) {
   for (const trap of this.traps) {
     if (trap.condition({ prop, stringprop })) return trap.value(object, prop, stringprop);
   }
+  const new_parts = [...this.parts, prop.toString()];
 
-  return new this.constructor(this.base,
-    this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), [...this.parts, prop.toString()]);
+  if (!this.use_cache) {
+    return new this.constructor(this.base,
+      this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts);
+  }
+  const id = [this.base, ...new_parts].join(process.pid);
+  return this.constructor.cache[id] || (this.constructor.cache[id] = new this.constructor(this.base,
+    this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts));
 };

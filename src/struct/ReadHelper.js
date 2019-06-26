@@ -1,4 +1,4 @@
-/* eslint consistent-return: 0 */
+/* eslint consistent-return: 0, no-sparse-arrays: 0 */
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
@@ -110,7 +110,7 @@ const ReadHelper = class ReadHelper {
         return new Promise((res, rej) => {
           try {
             this.fs.stat(path, { bigInt }, (err, stat) => this.get_stat_cb(err, stat, { res, rej }));
-          } catch(_node_error) {
+          } catch (_node_error) {
             this.fs.stat(path, (err, stat) => this.get_stat_cb(err, stat, { res, rej }));
           }
         });
@@ -156,9 +156,9 @@ const ReadHelper = class ReadHelper {
 
   _mkdir(_path, options) {
     return new this._Promise((res, rej) => this.fs.mkdir(_path, options, err => {
-        if (err) return rej(err);
-        return res();
-      }));
+      if (err) return rej(err);
+      return res();
+    }));
   }
 
   mkdir_sync(_path, options) {
@@ -166,12 +166,10 @@ const ReadHelper = class ReadHelper {
     if (options.gte_v10_12) return this.fs.mkdirSync(path, { recursive: true, ...options });
     for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) {
       $stat = this.get_stat_sync(pending, options.stringprop);
-      if ($stat) {
-        if ($stat.isDirectory) {
-          if ((pending === path) || !to_create[--i]) return path;
-          this.fs.mkdirSync(to_create[i], options);
-        } else throw new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`);
-      } else to_create[++i] = this.path.dirname(pending);
+      if (!$stat) to_create[++i] = this.path.dirname(pending);
+      else if (!$stat.isDirectory) throw new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`);
+      else if ((pending === path) || !to_create[--i]) return path;
+      else this.fs.mkdirSync(to_create[i], options);
     }
     return path;
   }
@@ -180,13 +178,11 @@ const ReadHelper = class ReadHelper {
     const path = this.path.resolve(_path);
     if (options.gte_v10_12) return this.fs.mkdir(path, { recursive: true, ...options }, cb);
     for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) {
-      $stat = await this.get_stat(pending, options.stringprop);
-      if ($stat) {
-        if ($stat.isDirectory) {
-          if ((pending === path) || !to_create[--i]) return cb(null, path);
-          await this._mkdir(to_create[i], options);
-        } else return cb(new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`));
-      } else to_create[++i] = this.path.dirname(pending);
+      $stat = await this.get_stat(pending, options.stringprop); // eslint-disable-line no-await-in-loop
+      if (!$stat) to_create[++i] = this.path.dirname(pending);
+      else if (!$stat.isDirectory) return cb(new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`));
+      else if ((pending === path) || !to_create[--i]) return cb(null, path);
+      else await this._mkdir(to_create[i], options); // eslint-disable-line no-await-in-loop
     }
     return cb(null, path);
   }
@@ -195,16 +191,19 @@ const ReadHelper = class ReadHelper {
     let list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
       e => this.get_stat_sync(e).directory);
     if (this.load_only_traps || this.exclude_traps) {
-      const every = !this.load_only_traps
+      const every = !this.load_only_traps;
       this.load_only_traps = this.load_only_traps || new Set;
       this.exclude_traps = this.exclude_traps || new Set;
-      const trap_lib = {}, /* Array */ all_dependencies = Array.from(this.load_only_traps || []); // Array to take advantage of spreaded .push()
+      const trap_lib = {},
+        /* Array */ all_dependencies = Array.from(this.load_only_traps || []); // Array to take advantage of spreaded .push()
       for (let i = 0, e, trap, condition, value, dependencies;
-        i < list.length && (e = list[i]) && (trap = path.basename(e, '.js')) && ({ condition, value, dependencies } = require(e)); ++i) {
-          if (this.exclude_traps.has(trap)) continue;
-          trap_lib[trap] = { condition, value, dependencies };
-          if (every) all_dependencies.push(trap);
-          if (this.load_only_traps.has(trap) && dependencies) all_dependencies.push(...dependencies);
+        i < list.length && (e = list[i]) &&
+        (trap = this.path.basename(e, '.js')) && ({ condition, value, dependencies } = require(e)); ++i
+      ) {
+        if (this.exclude_traps.has(trap)) continue;
+        trap_lib[trap] = { condition, value, dependencies };
+        if (every) all_dependencies.push(trap);
+        if (this.load_only_traps.has(trap) && dependencies) all_dependencies.push(...dependencies);
       }
       this.traps = all_dependencies.reduce((traps, next) => {
         const trap = trap_lib[next];

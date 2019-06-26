@@ -1,5 +1,5 @@
 const regex = exports.regex = /^\$ma?ke?(?:[._]*)?dir(?:[._]*sync)?(?:[._]*func)?$/i;
-let gte_v10_12 = undefined, default_options;
+let gte_v10_12, default_options;
 exports.condition = ({ stringprop }) => regex.test(stringprop);
 exports.value = function value(object, prop, stringprop) {
   if (gte_v10_12 === undefined) {
@@ -17,21 +17,19 @@ exports.value = function value(object, prop, stringprop) {
   }
   if (stringprop.includes('sync')) {
     if (stringprop.includes('func')) {
-      return (function mkdir_sync(options = default_options) {
+      return function mkdir_sync(options = default_options) {
         return this.read_dir.mkdir_sync(this.proxy(), options);
-      }).bind(this);
+      }.bind(this);
     }
     return this.proxy.$mkdir_sync_func(default_options);
   } else {
     if (stringprop.includes('func')) {
-      return (function mkdir(options = default_options) {
-        return new this._Promise((res, rej) => {
-          return this.read_dir.mkdir_cb(this.proxy(), options, (err, path) => {
-            if (err) return rej(err);
-            return res(path);
-          });
-        });
-      }).bind(this);
+      return function mkdir(options = default_options) {
+        return new this._Promise((res, rej) => this.read_dir.mkdir_cb(this.proxy(), options, (err, path) => {
+          if (err) return rej(err);
+          return res(path);
+        }));
+      }.bind(this);
     }
     return this.proxy.$mkdir_func(default_options);
   }

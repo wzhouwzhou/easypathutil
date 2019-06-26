@@ -1,5 +1,5 @@
 const regex = exports.regex = /^\$(?:to[._]*)?json(?:[._]*)?async$/i;
-// We have separated this into its own trap because it is a custom implementation of $json instead of having to use a third party dependency.
+// We have separated this into its own trap because it is a custom implementation of $json instead of having to use a 3rd party dependency.
 exports.condition = ({ stringprop }) => regex.test(stringprop);
 exports.dependencies = ['$readfilestream'];
 let warned = false;
@@ -26,7 +26,7 @@ class AsyncParser {
 
   parse(str) {
     const completeStr = this.remaining + str;
-    const matches = completeStr.match(/[{}\[\]]|"[^"]*":?|true|false|\d+/ig);
+    const matches = completeStr.match(/[{}[\]]|"[^"]*":?|true|false|\d+/ig);
     const last = matches[matches.length - 1];
     this.remaining = completeStr.substring(completeStr.lastIndexOf(last) + last.length);
     return this.process(matches);
@@ -78,7 +78,7 @@ class AsyncParser {
           this.path.pop();
         }
       }
-      res(true);
+      return res(true);
     });
   }
 }
