@@ -3,7 +3,7 @@ const name = exports.name = '$_create';
 
 exports.condition = ({ stringprop }) => stringprop === name;
 exports.value = function value() {
-  return function _create(parts, new_base = this.base, use_cache = this.use_cache) {
+  return function _create(parts = [], new_base = this.base, use_cache = this.use_cache) {
     if (use_cache) {
       return new this.constructor(new_base, this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), parts);
     }

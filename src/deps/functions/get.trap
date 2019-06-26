@@ -4,7 +4,7 @@ Reflect.defineProperty(exports, '__esModule', { value: true });
 
 exports.default = function get(object, prop) {
   const stringprop = prop.toString();
-  for (const trap of this.traps) {
+  for (const trap of this.traps) { // Help wanted: allow storing partial trap keys in a hashtable/Map for faster O[1] retrieval for those.
     if (trap.condition({ prop, stringprop })) return trap.value(object, prop, stringprop);
   }
   const new_parts = [...this.parts, prop.toString()];
