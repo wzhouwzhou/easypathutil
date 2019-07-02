@@ -66,7 +66,7 @@ function PathBuilder(base = process.cwd(), {
 
 PathBuilder.construct_base = (base, opts) => {
   const { rel, path, n } = opts;
-  base = path.normalize(typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd()).replace(/\/$/, ''); // Enforce default
+  base = path.normalize(typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd()).replace(/[/\\]+$/, ''); // Enforce default
   if (path.isAbsolute(base)) return base;
   if (rel) return path.resolve(rel, base);
   if (base.startsWith('../') || base.startsWith('./') || base === '.' || base === '..') return _resolve(base, path, n); // Dotfiles are a thing
