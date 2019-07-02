@@ -7,7 +7,7 @@ const ReadHelper = require('./ReadHelper').default;
 
 const _resolve = (rel, path, n, p = Error.prepareStackTrace) => {
   Error.prepareStackTrace = (_, $) => $;
-  console.log(`${Error().stack}`)
+  // Debugging: console.log(`${Error().stack}`)
   const { stack: [,,, s, s2] } = Error();
   Error.prepareStackTrace = p;
   return path.resolve(path.dirname(n ? s2.getFileName() : s.getFileName()) || process.cwd(), rel);
@@ -66,7 +66,10 @@ function PathBuilder(base = process.cwd(), {
 
 PathBuilder.construct_base = (base, opts) => {
   const { rel, path, n } = opts;
-  base = path.normalize(typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd()).replace(/[/\\]+$/, ''); // Enforce default
+  const base = typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd();
+  const leading = base.match(/^[.\\/]+/);
+  base = path.normalize(base).replace(/[/\\]+$/, ''); // Enforce default
+  if (leading) base = leading + base;
   if (path.isAbsolute(base)) return base;
   if (rel) return path.resolve(rel, base);
   if (base.startsWith('../') || base.startsWith('./') || base === '.' || base === '..') return _resolve(base, path, n); // Dotfiles are a thing
