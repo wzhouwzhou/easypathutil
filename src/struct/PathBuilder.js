@@ -8,7 +8,7 @@ const ReadHelper = require('./ReadHelper').default;
 const _resolve = (rel, path, n, p = Error.prepareStackTrace) => {
   Error.prepareStackTrace = (_, $) => $;
   // Debugging: console.log(`${Error().stack}`)
-  const { stack: [,,, s, s2] } = Error();
+  const { stack: [,, s, s2] } = Error();
   Error.prepareStackTrace = p;
   return path.resolve(path.dirname(n ? s2.getFileName() : s.getFileName()) || process.cwd(), rel);
 };
@@ -72,7 +72,7 @@ PathBuilder.construct_base = (base, opts) => {
   if (leading) base = path.join(leading[0], base);
   if (path.isAbsolute(base)) return base;
   if (rel) return path.resolve(rel, base);
-  if (base.startsWith('../') || base.startsWith('./') || base === '.' || base === '..') return _resolve(base, path, n); // Dotfiles are a thing
+  if (leading) return _resolve(base, path, n); // Dotfiles are a thing
   return path.resolve(process.cwd(), `.${path.sep}${base}`);
 };
 
