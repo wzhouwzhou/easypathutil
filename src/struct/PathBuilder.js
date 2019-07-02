@@ -68,7 +68,7 @@ PathBuilder.construct_base = (base, opts) => {
   base = path.normalize(typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd()); // Enforce default
   if (path.isAbsolute(base)) return base;
   if (rel) return path.resolve(rel, base);
-  if (!base.startsWith('.')) return _resolve(base, path, n);
+  if (base.startsWith('../') || base.startsWith('./')) return _resolve(base, path, n); // Dotfiles are a thing
   return path.resolve(process.cwd(), `.${path.sep}${base}`);
 };
 
