@@ -205,20 +205,22 @@ const ReadHelper = class ReadHelper {
         if (every) all_dependencies.push(trap);
         if (this.load_only_traps.has(trap) && dependencies) all_dependencies.push(...dependencies);
       }
+      const _traps = new Map(); _traps.__internal = [];
       this.traps = all_dependencies.reduce((traps, next) => {
         const trap = trap_lib[next];
         if (!trap) return traps;
         trap.value = trap.value.bind(this.builder);
-        traps.push(trap);
+        if (trap.node_internal) traps.get('__internal').push(trap);
+        else traps.set(next, trap);
         return traps;
-      }, []);
+      }, _traps);
     } else {
-      this.traps = [];
-      for (const { condition, value } of list.map(require)) {
-        this.traps.push({
-          condition,
-          value: value.bind(this.builder),
-        });
+      const _traps = this.traps = new Map(); _traps.__internal = [];
+      for (const elem of list) {
+        const { condition, value, node_internal } = require(elem);
+        const trap = { condition, value: value.bind(this.builder) };
+        if (node_internal) _traps.__internal.push(trap);
+        else _traps.set(this.path.basename(elem, '.js'), trap);
       }
     }
     this.builder.traps = this.traps;

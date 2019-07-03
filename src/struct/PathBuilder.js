@@ -80,4 +80,10 @@ PathBuilder.construct_base = (base, opts) => {
 PathBuilder.cache = {}; // id => <PathBuilder>
 
 PathBuilder.PathBuilder = PathBuilder.default = PathBuilder;
+
+const oldHI = PathBuilder[Symbol.hasInstance];
+Object.defineProperty(PathBuilder, Symbol.hasInstance, {
+  value: obj => obj && (oldHI.call(PathBuilder, obj) || obj[Symbol.species] === PathBuilder),
+});
+
 exports.default = PathBuilder;

@@ -8,7 +8,7 @@ function filter(p) {
   return isdir;
   /* eslint-enable no-invalid-this */
 }
-
-const folders = Builder('../src', { filter })
-  .$readdirsync.filter(e => !Builder(e).$statsync.file);
+const src = Builder('../src', { filter });
+console.log('Reading folder:', src); // eslint-disable-line no-console
+const folders = src.$readdirsync.filter(e => !Builder(e).$statsync.file);
 console.dir(folders); // eslint-disable-line no-console
