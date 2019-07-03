@@ -5,6 +5,7 @@ exports.dependencies = ['$mkdir'];
 exports.value = function value(object, prop, stringprop) {
   if (stringprop.toLowerCase().includes('sync')) {
     return function write_sync(content, opts = { encoding: 'utf-8' }) {
+
       this.proxy.$back.$mkdir_sync_func();
       this._fs.writeFileSync(this.proxy(), content, opts);
       return true;

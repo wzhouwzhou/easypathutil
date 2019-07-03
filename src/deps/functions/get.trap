@@ -23,6 +23,7 @@ exports.default = function get(object, prop) {
       this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts);
   }
   const id = [this.base, ...new_parts].join(process.pid);
+  // Cache checking: if (this.constructor.cache[id]) console.log('Using cache'); else console.log(`No cache for id ${id}`);
   return this.constructor.cache[id] || (this.constructor.cache[id] = new this.constructor(this.base,
     this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts));
 };
