@@ -188,6 +188,10 @@ const ReadHelper = class ReadHelper {
   }
 
   load_proxy() {
+    if (this.builder.use_cache && this.builder.use_cache.traps) {
+      this.builder.traps = this.traps = this.builder.use_cache.traps;
+      return this.builder;
+    }
     let list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
       e => this.get_stat_sync(e).directory);
     if (this.load_only_traps || this.exclude_traps) {
@@ -223,7 +227,9 @@ const ReadHelper = class ReadHelper {
         else _traps.set(this.path.basename(elem, '.js'), trap);
       }
     }
-    this.builder.traps = this.traps;
+    this.builder.use_cache = {
+      traps: this.builder.traps = this.traps,
+    };
     return this.builder;
   }
 };

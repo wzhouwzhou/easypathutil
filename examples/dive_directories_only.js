@@ -9,6 +9,7 @@ function filter(p) {
   /* eslint-enable no-invalid-this */
 }
 const src = Builder('../src', { filter });
-console.log('Reading folder:', src); // eslint-disable-line no-console
+// Help wanted - src as a second argument on windows is resolving as Function instead of going through the proxy
+console.log(`Reading folder: ${src}`); // eslint-disable-line no-console
 const folders = src.$readdirsync.filter(e => !Builder(e).$statsync.file);
 console.dir(folders); // eslint-disable-line no-console

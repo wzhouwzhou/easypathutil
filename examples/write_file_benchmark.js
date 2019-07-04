@@ -8,12 +8,13 @@ const cached_package_json = pkg_json.$json;
 console.log(`The package version is: ${cached_package_json.version}`); // eslint-disable-line no-console
 
 const new_json_file = dump['new.json'];
+console.log(`Writing to ${new_json_file()}`); // eslint-disable-line no-console
 
 /*
  * Test: repeated writes to a file. Change "N" to modify the number of iterations.
  */
 
-let write_file_sync, delta, now, k = 0, N = 20000;
+let write_file_sync, delta, now, k = 0, N = process.argv[2] || 20000;
 console.log('Testing with loop count of:', N); // eslint-disable-line no-console
 const str = JSON.stringify(cached_package_json, 0, 2), content = `${str}\n`, opts = { encoding: 'utf-8' };
 

@@ -25,7 +25,7 @@ function PathBuilder(base = process.cwd(), {
   rel = false, // Specify an override for the relative path instead of automatically determining and/or using base.
   load_only_traps = null, // Optionally specify an Array or Set of traps you want to load or skip, i.e, ['$require', '$json']
   exclude_traps = null, // Useful for speeding up trap lookups but do not disable traps you need. They will be silently treated as paths.
-  use_cache = true, // Set to false when doing advanced property transforms on PathBuilder objects.
+  use_cache = true, // Set to false when doing advanced property transforms on PathBuilder objects. This turns into an object later.
 } = {}, parts = []) {
   const opts = { JSON, path, fs, Promise, readdir_filter, filter, n, rel, load_only_traps, exclude_traps, use_cache };
   if (!(this instanceof PathBuilder)) return new PathBuilder(base, { ...opts, n: 1 }, parts);
@@ -58,10 +58,10 @@ function PathBuilder(base = process.cwd(), {
   //   throw new Error('Invalid Promise object, "resolve" function property missing!');
   // }
 
-  const proxy = this.proxy = new Proxy((arga => {
+  const proxy = this.proxy = new Proxy(arga => {
     if (!arga) return this._path.join(this.base, ...this.parts);
     return this.proxy.$_create([...this.parts, arga.toString()]);
-  }).bind(this), { has: has.bind(this), get: get.bind(this) });
+  }, { has: has.bind(this), get: get.bind(this) });
   return proxy;
 }
 
@@ -69,8 +69,10 @@ PathBuilder.construct_base = (base, opts) => {
   const { rel, path, n } = opts;
   base = typeof base === 'string' || String[Symbol.hasInstance](base) ? base : process.cwd();
   const leading = base.match(/^[.\\/]+/);
+  const double_dir = base.match(/^[\\/]{2}/);
   base = path.normalize(base).replace(/[/\\]+$/, ''); // Enforce default
-  if (leading && !base.startsWith('.')) base = path.join(leading[0], base);
+  if (leading && base[0] !== '.') base = path.join(leading[0], base);
+  if (double_dir) base = `${path.sep}${base}`;
   if (path.isAbsolute(base)) return base;
   if (rel) return path.resolve(rel, base);
   if (leading) return _resolve(base, path, n); // Dotfiles are a thing
