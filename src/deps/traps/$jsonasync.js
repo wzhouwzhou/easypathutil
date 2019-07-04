@@ -9,8 +9,8 @@ exports.value = function value() {
     'You should only be using this as guide.');
   }
   const stream = this.proxy.$readfilestream;
-  const parser = new AsyncParser(this._Promise);
-  return new this._Promise(res => {
+  const parser = new AsyncParser(this.Promise);
+  return new this.Promise(res => {
     stream.on('data', d => parser.parse(d.toString()).then(_ => _));
     stream.on('end', () => res(parser.result));
   });
@@ -21,7 +21,7 @@ class AsyncParser {
     this.result = {};
     this.path = [];
     this.remaining = '';
-    this._Promise = Promise;
+    this.Promise = Promise;
   }
 
   parse(str) {
@@ -45,7 +45,7 @@ class AsyncParser {
   }
 
   process(matches) {
-    return new this._Promise(res => {
+    return new this.Promise(res => {
       while (matches.length) {
         const m = matches.shift();
         if (m.endsWith(':')) {

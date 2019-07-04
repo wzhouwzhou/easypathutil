@@ -233,47 +233,6 @@ const ReadHelper = class ReadHelper {
         this.load_trap_immediate(elem, _traps);
       }
     }
-
-    // if (this.load_only_traps || this.exclude_traps) {
-    //   const every = !this.load_only_traps;
-    //
-    //   this.exclude_traps = this.exclude_traps || new Set;
-    //   const trap_lib = {},
-    //     /* Array */ all_dependencies = this.load_only_traps;
-    //   for (let i = 0, e, trap, node_internal, condition, value, dependencies;
-    //     i < list.length && (e = list[i]) &&
-    //     (trap = this.path.basename(e, '.js')) && ({ node_internal, condition, value, dependencies } = require(e)); ++i
-    //   ) {
-    //     if (this.exclude_traps.has(trap)) continue;
-    //     trap_lib[trap] = { condition, value, dependencies, node_internal };
-    //     if (every) all_dependencies.add(trap);
-    //     if (this.load_only_traps.has(trap) && dependencies) {
-    //       for (const d of dependencies) {
-    //         all_dependencies.add(d);
-    //         list[list.length] = this.path.join(trap_dir, `${d}.js`);
-    //         this.load_only_traps.add(d);
-    //       }
-    //     }
-    //   }
-    //   const _traps = new Map().set('__internal', []);
-    //   this.traps = Array.from(all_dependencies).reduce((traps, next) => {
-    //     const trap = trap_lib[next];
-    //     if (!trap) return traps;
-    //     // Load: console.log('Loaded trap', next, trap)
-    //     // trap.value = trap.value.bind(this.builder);
-    //     if (trap.node_internal) traps.get('__internal').push(trap);
-    //     else traps.set(next, trap);
-    //     return traps;
-    //   }, _traps);
-    // } else {
-    //   const _traps = this.traps = new Map().set('__internal', []);
-    //   for (const elem of list) {
-    //     const { condition, value, node_internal } = require(elem);
-    //     const trap = { condition, value };
-    //     if (node_internal) _traps.get('__internal').push(trap);
-    //     else _traps.set(this.path.basename(elem, '.js'), trap);
-    //   }
-    // }
     this.builder.use_cache.traps = this.builder.traps = this.traps;
     return this.builder;
   }

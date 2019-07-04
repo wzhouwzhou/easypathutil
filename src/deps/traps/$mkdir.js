@@ -25,7 +25,7 @@ exports.value = function value(object, prop, stringprop) {
   } else {
     if (stringprop.includes('func')) {
       return function mkdir(options = default_options) {
-        return new this._Promise((res, rej) => this.read_dir.mkdir_cb(this.proxy(), options, (err, path) => {
+        return new this.Promise((res, rej) => this.read_dir.mkdir_cb(this.proxy(), options, (err, path) => {
           if (err) return rej(err);
           return res(path);
         }));
