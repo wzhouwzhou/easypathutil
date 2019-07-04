@@ -5,11 +5,11 @@ exports.dependencies = ['$stat'];
 exports.value = function value(object, prop, stringprop) {
   if (stringprop.toLowerCase().includes('sync')) {
     if (!this.proxy.$statsync.file) throw new Error(`Read: I am not a file. (Tried to access ${this.proxy()} unsuccessfully.)`);
-    return this._fs.readFileSync(this.proxy());
+    return this.fs.readFileSync(this.proxy());
   } else {
-    return this._Promise.resolve((async() => {
+    return this.Promise.resolve((async() => {
       if (!(await this.proxy.$stat).file) throw new Error(`Read: I am not a file. (Tried to access ${this.proxy()} unsuccessfully.)`);
-      return new this._Promise((res, rej) => this._fs.readFile(this.proxy(), (err, data) => {
+      return new this.Promise((res, rej) => this.fs.readFile(this.proxy(), (err, data) => {
         if (err) return rej(err);
         return res(data);
       }));

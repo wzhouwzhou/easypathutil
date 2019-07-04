@@ -1,6 +1,6 @@
 const Builder = require('..');
-const pkg_json = Builder('../package.json');
-const dump = Builder('./dump');
+const pkg_json = Builder('../package.json', { load_only_traps: ['$json'] });
+const dump = Builder('./dump', { load_only_traps: ['$writefile'] });
 
 // Read the package.json
 console.log(`Reading ${pkg_json()}`); // eslint-disable-line no-console
@@ -61,7 +61,8 @@ The package version is: 1.2.4
 Testing with loop count of: 20000
 EPU Time taken = 3927 ms
 FS Time taken = 3825 ms
- *  difference = (3927-3825)/20000 = 0.0051 ms = difference as low as (if not more than) 5.1 microseconds per file!
+ *  difference = (3927-3825)/20000 = 0.0051 ms = difference as low as (if not better than) 5.1 microseconds per file!
+ *  Would you give away 0000.0000051 seconds during runtime or maybe waste 3600.0000000 seconds (an hour or more) of coding?
 */
 // eslint-disable-next-line no-console
 console.log('Would you rather save dozens of minutes or even hours reinvening the wheel just to shave milliseconds for writing ' +

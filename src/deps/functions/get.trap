@@ -3,27 +3,33 @@
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
 exports.default = function get(object, prop) {
+  // Identificattion: console.log('We are', this.proxy())
   const stringprop = prop.toString();
   let t = stringprop;
-  // DebugKey: console.log('retrieving key: ', t, new Error)
-  if (t[0] === '$') {
+  // DebugKey: console.log('retrieving key: ', t, /*new Error*/)
+  if (t && t[0] === '$') {
     // eslint-disable-next-line no-cond-assign
-    if (t = this.traps.get(stringprop.replace(/[_-]|sync/g, ''))) return t.value(object, prop, stringprop);
+    if (t = this.traps.get(stringprop.replace(/[_-]|sync/g, '') || this.traps.get(stringprop))) {
+      return t.value.call(this, object, prop, stringprop);
+    }
     for (const _trap of this.traps.values()) {
-      if (_trap.condition({ prop, stringprop })) return _trap.value(object, prop, stringprop);
+      if (_trap.condition && _trap.condition({ prop, stringprop })) return _trap.value.call(this, object, prop, stringprop);
     }
     // eslint-disable-next-line no-cond-assign
-  } else if (t && (t = this.traps.__internal.find(trap => trap.condition({ prop, stringprop })))) {
-    return t.value(object, prop, stringprop);
+  } else if (t = this.traps.get('__internal').find(trap => trap.condition({ prop, stringprop }))) {
+    return t.value.call(this, object, prop, stringprop);
   }
+
   const new_parts = [...this.parts, prop.toString()];
 
   if (!this.use_cache) {
     return new this.constructor(this.base,
       this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts);
   }
+
   const id = [this.base, ...new_parts].join(process.pid);
-  // Cache checking: if (this.constructor.cache[id]) console.log('Using cache'); else console.log(`No cache for id ${id}`);
+  // CacheChecking: if (this.constructor.cache[id]) console.log('Using cache'); else console.log(`No cache for id ${id}`);
+  // Properties: console.log(this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}))
   return this.constructor.cache[id] || (this.constructor.cache[id] = new this.constructor(this.base,
     this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), new_parts));
 };

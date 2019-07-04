@@ -14,6 +14,7 @@ const ReadHelper = class ReadHelper {
     this.async_filter = (this._readdir_filter ? this._readdir_filter.async || this._readdir_filter.parallel || this._readdir_filter :
       _path => this.get_stat(_path).then(stat => stat.directory)).bind(this);
     this.load_only_traps = load_only_traps && new Set(load_only_traps);
+    if (this.load_only_traps) this.load_only_traps.add('inspect');
     this.exclude_traps = exclude_traps && new Set(exclude_traps);
     this.load_proxy();
   }
@@ -188,48 +189,57 @@ const ReadHelper = class ReadHelper {
   }
 
   load_proxy() {
+    // Prev: console.log('prev', this.builder.use_cache)
     if (this.builder.use_cache && this.builder.use_cache.traps) {
       this.builder.traps = this.traps = this.builder.use_cache.traps;
       return this.builder;
     }
-    let list = this.read_recurse_series(this.path.resolve(__dirname, '../deps/traps'),
+    this.builder.use_cache = {};
+
+    const trap_dir = this.path.resolve(__dirname, '../deps/traps');
+    let list = this.read_recurse_series(trap_dir,
       e => this.get_stat_sync(e).directory);
     if (this.load_only_traps || this.exclude_traps) {
       const every = !this.load_only_traps;
       this.load_only_traps = this.load_only_traps || new Set;
       this.exclude_traps = this.exclude_traps || new Set;
       const trap_lib = {},
-        /* Array */ all_dependencies = Array.from(this.load_only_traps || []); // Array to take advantage of spreaded .push()
-      for (let i = 0, e, trap, condition, value, dependencies;
+        /* Array */ all_dependencies = this.load_only_traps;
+      for (let i = 0, e, trap, node_internal, condition, value, dependencies;
         i < list.length && (e = list[i]) &&
-        (trap = this.path.basename(e, '.js')) && ({ condition, value, dependencies } = require(e)); ++i
+        (trap = this.path.basename(e, '.js')) && ({ node_internal, condition, value, dependencies } = require(e)); ++i
       ) {
         if (this.exclude_traps.has(trap)) continue;
-        trap_lib[trap] = { condition, value, dependencies };
-        if (every) all_dependencies.push(trap);
-        if (this.load_only_traps.has(trap) && dependencies) all_dependencies.push(...dependencies);
+        trap_lib[trap] = { condition, value, dependencies, node_internal };
+        if (every) all_dependencies.add(trap);
+        if (this.load_only_traps.has(trap) && dependencies) {
+          dependencies.forEach(d => {
+            all_dependencies.add(d);
+            list[list.length] = this.path.join(trap_dir, `${d}.js`);
+            this.load_only_traps.add(d);
+          });
+        }
       }
-      const _traps = new Map(); _traps.__internal = [];
-      this.traps = all_dependencies.reduce((traps, next) => {
+      const _traps = new Map().set('__internal', []);
+      this.traps = Array.from(all_dependencies).reduce((traps, next) => {
         const trap = trap_lib[next];
         if (!trap) return traps;
-        trap.value = trap.value.bind(this.builder);
+        // Load: console.log('Loaded trap', next, trap)
+        // trap.value = trap.value.bind(this.builder);
         if (trap.node_internal) traps.get('__internal').push(trap);
         else traps.set(next, trap);
         return traps;
       }, _traps);
     } else {
-      const _traps = this.traps = new Map(); _traps.__internal = [];
+      const _traps = this.traps = new Map().set('__internal', []);
       for (const elem of list) {
         const { condition, value, node_internal } = require(elem);
-        const trap = { condition, value: value.bind(this.builder) };
-        if (node_internal) _traps.__internal.push(trap);
+        const trap = { condition, value };
+        if (node_internal) _traps.get('__internal').push(trap);
         else _traps.set(this.path.basename(elem, '.js'), trap);
       }
     }
-    this.builder.use_cache = {
-      traps: this.builder.traps = this.traps,
-    };
+    this.builder.use_cache.traps = this.builder.traps = this.traps;
     return this.builder;
   }
 };

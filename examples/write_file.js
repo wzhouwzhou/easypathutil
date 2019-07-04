@@ -1,6 +1,6 @@
 const Builder = require('..');
 const pkg_json = Builder('../package.json');
-const dump = Builder('./dump');
+const dump = Builder('./dump', { load_only_traps: ['$writefile', '$readfile'] });
 
 // Read the package.json
 console.log(`Reading ${pkg_json()}`); // eslint-disable-line no-console

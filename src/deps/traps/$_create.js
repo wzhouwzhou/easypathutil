@@ -8,7 +8,7 @@ exports.value = function value() {
       return new this.constructor(new_base, this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), parts);
     }
     const id = [new_base, ...parts].join(process.pid);
-    // Cache checking: if (this.constructor.cache[id]) console.log('Using cache'); else console.log(`No cache for id ${id}`);
+    // CacheChecking: if (this.constructor.cache[id]) console.log('Using cache', this.use_cache); else console.log(`No cache for id ${id}`);
     return this.constructor.cache[id] || (this.constructor.cache[id] = new this.constructor(new_base,
       this._properties.reduce((obj, p) => (obj[p] = this[p], obj), {}), parts));
   }.bind(this);
