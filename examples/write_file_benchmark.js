@@ -59,10 +59,11 @@ console.log(`FS Time taken = ${delta} ms`); // eslint-disable-line no-console
 Reading /Users/williamzhou/Desktop/Bots/easypathutil/package.json
 The package version is: 1.2.4
 Testing with loop count of: 20000
-EPU Time taken = 3927 ms
-FS Time taken = 3825 ms
- *  difference = (3927-3825)/20000 = 0.0051 ms = difference as low as (if not better than) 5.1 microseconds per file!
- *  Would you give away 0000.0000051 seconds during runtime or maybe waste 3600.0000000 seconds (an hour or more) of coding?
+EPU Time taken = 4256 ms
+FS Time taken = 4210 ms
+ *  difference = (4256-4210)/20000 = 0.0023 ms = difference as low as (if not better than) 2.3 microseconds per file!
+ *  Would you give away 0000.0000023 seconds during runtime or maybe waste 3600.0000000 seconds (an hour or more) of coding?
+Tested on MacBook Pro (15-inch, 2018) 2.9 GHz Intel Core i9 | 32 GB 2400 MHz DDR4 | 2 TB SSD
 */
 // eslint-disable-next-line no-console
 console.log('Would you rather save dozens of minutes or even hours reinvening the wheel just to shave milliseconds for writing ' +
