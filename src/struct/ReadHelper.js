@@ -226,12 +226,8 @@ const ReadHelper = class ReadHelper {
         if (trap && trap.dependencies) to_load.push(...trap.dependencies);
       }
     } else {
-      let list = this.read_recurse_series(trap_dir,
-        e => this.get_stat_sync(e).directory);
-
-      for (const elem of list) {
-        this.load_trap_immediate(elem, _traps);
-      }
+      let list = this.read_recurse_series(trap_dir, e => this.get_stat_sync(e).directory);
+      for (const elem of list) this.load_trap_immediate(elem, _traps);
     }
     this.builder.use_cache.traps = this.builder.traps = this.traps;
     return this.builder;

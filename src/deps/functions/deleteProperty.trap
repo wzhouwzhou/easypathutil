@@ -1,0 +1,7 @@
+/* eslint-disable no-return-assign, no-sequences */
+'use strict';
+Reflect.defineProperty(exports, '__esModule', { value: true });
+
+exports.default = function deleteProperty(object, prop) {
+  return !!this.traps.get('$rm').value.call(this, object, 'rm_sync_func', 'rm_sync_func').call(this, this.proxy[prop]());
+};

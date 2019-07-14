@@ -1,6 +1,6 @@
 const Builder = require('..');
 const pkg_json = Builder('../package.json', { load_only_traps: ['$json'] });
-const dump = Builder('./dump', { load_only_traps: ['$writefile'] });
+const dump = Builder('./dump', { load_only_traps: ['$writefile'] }); //  ['$writefile', '$rm']
 
 // Read the package.json
 console.log(`Reading ${pkg_json()}`); // eslint-disable-line no-console
@@ -8,50 +8,74 @@ const cached_package_json = pkg_json.$json;
 console.log(`The package version is: ${cached_package_json.version}`); // eslint-disable-line no-console
 
 const new_json_file = dump['new.json'];
-console.log(`Writing to ${new_json_file()}`); // eslint-disable-line no-console
+const new_json_file_path = new_json_file();
+console.log(`Writing to ${new_json_file_path}`); // eslint-disable-line no-console
 
 /*
  * Test: repeated writes to a file. Change "N" to modify the number of iterations.
  */
 
 let write_file_sync, delta, now, k = 0, N = process.argv[2] || 20000;
+// let rm_sync;
 console.log('Testing with loop count of:', N); // eslint-disable-line no-console
 const str = JSON.stringify(cached_package_json, 0, 2), content = `${str}\n`, opts = { encoding: 'utf-8' };
 
 write_file_sync = new_json_file.$write_file_sync;
-now = Date.now();
-while (k++ < N) write_file_sync(content, opts);
-delta = Date.now() - now;
+// rm_sync = new_json_file.$rm_sync_func;
+write_file_sync(content, opts);
 
-console.log(`EPU Time taken = ${delta} ms`); // eslint-disable-line no-console
+const epu_time_store = [];
+
+for (let a = 0; a < 5; ++a) {
+  k = 0;
+
+  now = Date.now();
+  while (k++ < N) {
+    write_file_sync(content, opts);
+    // rm_sync(new_json_file_path);
+  }
+  delta = Date.now() - now;
+  epu_time_store.push(delta);
+}
+
+console.log(`EPU Time taken = ${epu_time_store.reduce((a, b) => a + b, 0) / epu_time_store.length} ms`); // eslint-disable-line no-console
 
 k = 0;
 const fs = require('fs'), _path = require('path'); // eslint-disable-line no-unused-vars
 const new_path = new_json_file();
 write_file_sync = fs.writeFileSync;
-
+// rm_sync = fs.unlinkSync;
 const get_stat_sync = path => fs.statSync(path); // eslint-disable-line no-unused-vars
 
-now = Date.now();
-while (k++ < N) {
-  /*
-   * Uncomment these lines to use basically the same algorithm run internally by easypathutil for safe path checking.
-   */
-  // const path = _path.resolve(_path.dirname(new_path));
-  // // V10: return this.fs.mkdirSync(path, { recursive: true, ...options });
-  // for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) { // eslint-disable-line no-sparse-arrays
-  //   $stat = get_stat_sync(pending);
-  //   if (!$stat) to_create[++i] = _path.dirname(pending);
-  //   else if (!$stat.isDirectory()) throw new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`);
-  //   else if ((pending === path) || !to_create[--i]) break;
-  //   else fs.mkdirSync(to_create[i]);
-  // }
+write_file_sync(new_path, content, opts);
 
-  write_file_sync(new_path, content, opts);
+const fs_time_store = [];
+
+for (let a = 0; a < 5; ++a) {
+  k = 0;
+  now = Date.now();
+  while (k++ < N) {
+    /*
+     * Uncomment these lines to use basically the same algorithm run internally by easypathutil for safe path checking.
+     */
+    // const path = _path.resolve(_path.dirname(new_path));
+    // // V10: return this.fs.mkdirSync(path, { recursive: true, ...options });
+    // for (let to_create = [, path], i = 1, pending, $stat; i && (pending = to_create[i]);) { // eslint-disable-line no-sparse-arrays
+    //   $stat = get_stat_sync(pending);
+    //   if (!$stat) to_create[++i] = _path.dirname(pending);
+    //   else if (!$stat.isDirectory()) throw new Error(`A non-folder entity already exists at the location [${pending}], aborting mkdir.`);
+    //   else if ((pending === path) || !to_create[--i]) break;
+    //   else fs.mkdirSync(to_create[i]);
+    // }
+
+    write_file_sync(new_path, content, opts);
+    // rm_sync(new_path);
+  }
+  delta = Date.now() - now;
+  fs_time_store.push(delta);
 }
-delta = Date.now() - now;
 
-console.log(`FS Time taken = ${delta} ms`); // eslint-disable-line no-console
+console.log(`FS Time taken = ${fs_time_store.reduce((a, b) => a + b, 0) / fs_time_store.length} ms`); // eslint-disable-line no-console
 
 
 /*
@@ -68,3 +92,5 @@ Tested on MacBook Pro (15-inch, 2018) 2.9 GHz Intel Core i9 | 32 GB 2400 MHz DDR
 // eslint-disable-next-line no-console
 console.log('Would you rather save dozens of minutes or even hours reinvening the wheel just to shave milliseconds for writing ' +
   `to the file ${N} times?`);
+
+// delete dump['new.json'];

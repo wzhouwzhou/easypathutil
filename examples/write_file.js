@@ -1,6 +1,6 @@
 const Builder = require('..');
 const pkg_json = Builder('../package.json');
-const dump = Builder('./dump', { load_only_traps: ['$writefile', '$readfile'] });
+const dump = Builder('./dump', { load_only_traps: ['$writefile', '$readfile', '$rm'] });
 
 // Read the package.json
 console.log(`Reading ${pkg_json()}`); // eslint-disable-line no-console
@@ -17,3 +17,6 @@ console.log(`Wrote a copy to ${new_json_file}, Equal content:`,
   new_json_file.$read_file_sync.toString() === pkg_json.$read_file_sync.toString());
 console.log('Lengths:', new_json_file.$read_file_sync.toString().length, pkg_json.$read_file_sync.toString().length);
 /* eslint-enable no-console */
+
+// new_json_file.$rm_sync_func();
+delete dump['new.json'];

@@ -2,7 +2,7 @@
 'use strict';
 Reflect.defineProperty(exports, '__esModule', { value: true });
 
-const { traps: { has, get } } = require('../deps');
+const { traps: { has, get, deleteProperty } } = require('../deps');
 const ReadHelper = require('./ReadHelper').default;
 
 const _resolve = (rel, path, n, p = Error.prepareStackTrace) => {
@@ -60,11 +60,14 @@ function PathBuilder(base = process.cwd(), {
   // if (typeof Reflect.get(this.Promise, 'resolve') !== 'function') {
   //   throw new Error('Invalid Promise object, "resolve" function property missing!');
   // }
-
+  const handlers = {
+    has: has.bind(this), get: get.bind(this),
+  };
+  if (this.use_cache.traps.has('$rm')) handlers.deleteProperty = deleteProperty.bind(this);
   const proxy = this.proxy = new Proxy(arga => {
     if (!arga) return this.path.join(this.base, ...this.parts);
     return this.proxy.$_create([...this.parts, arga.toString()]);
-  }, { has: has.bind(this), get: get.bind(this) });
+  }, handlers);
   return proxy;
 }
 
