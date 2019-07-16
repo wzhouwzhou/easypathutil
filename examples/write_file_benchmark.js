@@ -1,6 +1,6 @@
 const Builder = require('..');
 const pkg_json = Builder('../package.json', { load_only_traps: ['$json'] });
-const dump = Builder('./dump', { load_only_traps: ['$writefile'] }); //  ['$writefile', '$rm']
+const dump = Builder('./dump', { load_only_traps: ['$writefile', '$rm'] }); //  ['$writefile', '$rm']
 
 // Read the package.json
 console.log(`Reading ${pkg_json()}`); // eslint-disable-line no-console
@@ -94,3 +94,4 @@ console.log('Would you rather save dozens of minutes or even hours reinvening th
   `to the file ${N} times?`);
 
 // delete dump['new.json'];
+dump.$rm_sync_func();

@@ -7,7 +7,7 @@ exports.value = function value(object, prop, stringprop) {
 
   const _fs = this.fs;
   if (stringprop.toLowerCase().includes('sync')) {
-    return function rmSync(path = typeof this() === 'string' ? this() : this.proxy()) {
+    return function rmSync(path = Function[Symbol.hasInstance](this) && typeof this() === 'string' ? this() : this.proxy()) {
       if (!this.read_dir.get_stat_sync(path).file) {
         throw new Error(`Read: I am not a file. (Tried to rmdir ${path} unsuccessfully: not implemented.)`);
       }
@@ -15,7 +15,7 @@ exports.value = function value(object, prop, stringprop) {
       return true;
     }.bind(this);
   } else {
-    return function rm(path = typeof this() === 'string' ? this() : this.proxy()) {
+    return function rm(path = Function[Symbol.hasInstance](this) && typeof this() === 'string' ? this() : this.proxy()) {
       return this.Promise.resolve((async() => {
         if (!(await this.read_dir.get_stat_sync(path)).file) {
           throw new Error(`Read: I am not a file. (Tried to rmdir ${path} unsuccessfully: not implemented.)`);
