@@ -1,18 +1,35 @@
-const regex = exports.regex = /^\$rm(?:[._]*sync)(?:[._]*func)?$/i;
-
+const regex = exports.regex = /^\$rm(?:[._]*sync)?(?:[._]*func)?$/i;
+const gen_sync_filter = folders => function sync_filter(_path) {
+  const is_dir = this.get_stat_sync(_path).directory; // eslint-disable-line no-invalid-this
+  if (is_dir) folders.push(_path);
+  return is_dir;
+};
 exports.condition = ({ stringprop }) => regex.test(stringprop);
 exports.dependencies = ['$stat'];
 exports.value = function value(object, prop, stringprop) {
-  if (!stringprop.toLowerCase().includes('func')) return this.proxy[`${stringprop}_func`](this.proxy());
+  const lower = stringprop.toLowerCase();
+  if (!lower.includes('func')) {
+    if (lower.includes('sync')) return !Error[Symbol.hasInstance](this.proxy.$rm_sync_func(this.proxy()));
+    return Promise.resolve(this.proxy.$rm_func(this.proxy())).then(e => !Error[Symbol.hasInstance](e));
+  }
 
   const _fs = this.fs;
   if (stringprop.toLowerCase().includes('sync')) {
     return function rmSync(path = Function[Symbol.hasInstance](this) && typeof this() === 'string' ? this() : this.proxy()) {
-      if (!this.read_dir.get_stat_sync(path).file) {
-        throw new Error(`Read: I am not a file. (Tried to rmdir ${path} unsuccessfully: not implemented.)`);
+      try {
+        if (this.read_dir.get_stat_sync(path).folder) {
+          let folders = [];
+          const files = this.read_dir.sync(path, gen_sync_filter(folders));
+          for (const file of files) _fs.unlinkSync(file);
+          for (let folder, i = folders.length; i && (folder = folders[i--]);) _fs.rmdirSync(folder);
+          _fs.rmdirSync(path);
+          return true;
+        }
+        _fs.unlinkSync(path);
+        return true;
+      } catch (err) {
+        return err;
       }
-      _fs.unlinkSync(path);
-      return true;
     }.bind(this);
   } else {
     return function rm(path = Function[Symbol.hasInstance](this) && typeof this() === 'string' ? this() : this.proxy()) {

@@ -9,15 +9,19 @@ const ReadHelper = class ReadHelper {
     this.path = path;
     this._Promise = Promise;
     this._readdir_filter = readdir_filter || filter;
-    this.sync_filter = (this._readdir_filter ? this._readdir_filter.sync || this._readdir_filter :
-      _path => this.get_stat_sync(_path).directory).bind(this);
-    this.async_filter = (this._readdir_filter ? this._readdir_filter.async || this._readdir_filter.parallel || this._readdir_filter :
-      _path => this.get_stat(_path).then(stat => stat.directory)).bind(this);
+    this.sync_filter = this._readdir_filter ? this._readdir_filter.sync || this._readdir_filter :
+      this._default_sync_filter;
+    this.async_filter = this._readdir_filter ? this._readdir_filter.async || this._readdir_filter.parallel || this._readdir_filter :
+      this._default_async_filter;
     this.load_only_traps = load_only_traps && new Set(load_only_traps);
+    // Prevent some weird errors from happening, esp when logging. Manually remove it if you want with delete builder#traps['inspect']
     if (this.load_only_traps) this.load_only_traps.add('inspect');
     this.exclude_traps = exclude_traps && new Set(exclude_traps);
     this.load_proxy();
   }
+
+  _default_sync_filter(_path) { return this.get_stat_sync(_path).directory; }
+  _default_async_filter(_path) { return this.get_stat(_path).then(stat => stat.directory); }
 
   _normalize_filter(sync, filter) {
     if (sync === true && !filter) return this.sync_filter;
@@ -26,16 +30,16 @@ const ReadHelper = class ReadHelper {
     let ref = filter || sync;
     if (ref && Object.prototype.toString.call(ref) === '[object String]') return path => path !== ref;
     if (ref && RegExp[Symbol.hasInstance](ref)) return path => !ref.test(path);
-    if (ref && Object.toString.call(ref) === '[object Function]') return ref;
+    if (ref && Object.prototype.toString.call(ref) === '[object Function]') return ref;
   }
 
-  read_recurse_series(seek, filter = this._normalize_filter(true)) {
+  read_recurse_series(seek, filter = this._normalize_filter(true, this.sync_filter)) {
     const list = [];
     const read = dir => {
       const files = this.fs.readdirSync(dir);
       for (const file of files) {
         const filepath = this.path.join(dir, file);
-        if (filter(filepath)) read(filepath);
+        if (filter.call(this, filepath)) read(filepath);
         else list.push(filepath);
       }
     };
@@ -44,7 +48,7 @@ const ReadHelper = class ReadHelper {
   }
   sync(...args) { return this.read_recurse_series(...args); }
 
-  read_recurse_parallel(dir, filter = this._normalize_filter(false), suppress = false) {
+  read_recurse_parallel(dir, filter = this._normalize_filter(false, this.async_filter), suppress = false) {
     return new this._Promise((res, rej) => {
       let results = [];
       return this.fs.readdir(dir, (__err, list) => {
@@ -58,7 +62,7 @@ const ReadHelper = class ReadHelper {
             try {
               if (_err && !suppress) return rej(_err);
               if (suppress) return res([]);
-              if (stat && await filter(file)) {
+              if (stat && await filter.call(this, file)) {
                 return this.read_recurse_parallel(file, filter, suppress)
                   .then(next => {
                     results = results.concat(next);
