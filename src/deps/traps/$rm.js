@@ -24,9 +24,9 @@ exports.value = function value(object, prop, stringprop) {
           for (let folder, i = folders.length; i && (folder = folders[i--]);) _fs.rmdirSync(folder);
           _fs.rmdirSync(path);
           return true;
+        } else {
+          return _fs.unlinkSync(path) || true;
         }
-        _fs.unlinkSync(path);
-        return true;
       } catch (err) {
         return err;
       }
@@ -34,13 +34,27 @@ exports.value = function value(object, prop, stringprop) {
   } else {
     return function rm(path = Function[Symbol.hasInstance](this) && typeof this() === 'string' ? this() : this.proxy()) {
       return this.Promise.resolve((async() => {
-        if (!(await this.read_dir.get_stat_sync(path)).file) {
-          throw new Error(`Read: I am not a file. (Tried to rmdir ${path} unsuccessfully: not implemented.)`);
+        if ((await this.read_dir.get_stat_sync(path)).folder) {
+          let folders = [];
+          const files = this.read_dir.sync(path, gen_sync_filter(folders));
+          const promises = new Array(files.length);
+          for (let i = files.length; i--;) {
+            promises[i] = new Promise((res, rej) => _fs.unlink(files[i], err => err ? rej(err) : res(!0)));
+          }
+          await Promise.all(promises);
+          for (let i = folders.length; i--;) {
+            // Folders must be removed in order
+            // eslint-disable-next-line no-await-in-loop
+            await new Promise((res, rej) => _fs.rmdir(folders[i], err => err ? rej(err) : res(!0)));
+          }
+          await new Promise((res, rej) => _fs.rmdir(path, err => err ? rej(err) : res(!0)));
+          return true;
+        } else {
+          return new this.Promise((res, rej) => _fs.unlink(path, (err, data) => {
+            if (err) return rej(err);
+            return res(data || !0);
+          }));
         }
-        return new this.Promise((res, rej) => _fs.unlink(path, (err, data) => {
-          if (err) return rej(err);
-          return res(data);
-        }));
       })());
     }.bind(this);
   }
