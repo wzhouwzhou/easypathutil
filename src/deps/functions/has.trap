@@ -5,7 +5,7 @@ exports.default = function has(target, prop) {
   const stringprop = prop.toString();
   if (/^$require(?:[._]*default)?$/.test(stringprop)) {
     try {
-      require.resolve(this._path.join(this.base, ...this.parts));
+      require.resolve(this.path.join(this.base, ...this.parts));
       return true;
     } catch (err) {
       if (err && err.code === 'MODULE_NOT_FOUND') return false;
@@ -14,6 +14,6 @@ exports.default = function has(target, prop) {
   } else if (stringprop === '$back') {
     return this.parts.length > 0;
   } else {
-    return this._fs.existsSync(this._path.join(this.base, ...[...this.parts, stringprop]));
+    return this.fs.existsSync(this.path.join(this.base, ...[...this.parts, stringprop]));
   }
 };
