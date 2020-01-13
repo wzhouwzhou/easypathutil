@@ -12,9 +12,13 @@ exports.value = function value(object, prop, stringprop) {
   } else {
     return function write(content, opts = { encoding: 'utf-8' }) {
       return new Promise(async(res, rej) => {
-        await this.proxy.$mkdir_func();
-        this.fs.writeFile(this.proxy(), content, opts, err => err ? rej(err) : res(true));
-        res(true);
+        try {
+          await this.proxy.$back.$mkdir_func();
+          this.fs.writeFile(this.proxy(), content, opts, err => err ? rej(err) : res(true));
+          res(true);
+        } catch (err) {
+          rej(err);
+        }
       });
     }.bind(this);
   }
