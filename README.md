@@ -19,7 +19,7 @@ The modern (es6) way to specify file paths and perform quick file system operati
 
 ## One Step Installation:
 
-    npm install easypathutil@1.2.4
+    npm install wzhouwzhou/easypathutil#feature/File_Writes
 
 ### Two-Part Motivation
 • Avoid a nesting problem of excessive '../../../../../foo/bar' when you can use a fluent object in projects with a more invariant file structure.
@@ -135,7 +135,9 @@ Aliases: $require_default, $requiredefault, $requireDefault, etc, optional "." o
     });
     // Aliases .$readdir, .$readDirsync, etc. as always, "." or "_" are optional and case insensitive
 
-**Advanced Feature: Recursive Dive Prevention**
+<details>
+<summary>Advanced Feature: Recursive Dive Prevention</summary>
+<br />
 
 Please note that this feature is for more advanced users only who specifically have this need. You may skip down to the next section if you
 are reading directories only for files.
@@ -233,6 +235,7 @@ functions to help abstract the directory reading process away from the node fs m
 functionality is not of use to you.
 
 Have a more specific use case that you don't believe this covers? Open an issue on this package's github repository (linked below)!
+</details>
 
 #### **New object shortcut (.$new, .$new_default)**
 
